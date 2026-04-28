@@ -32,6 +32,7 @@ export const BLOCKED_PATTERNS: string[] = [
 
 function npmRunCommand(commands: string): string[] {
   return [
+    `nr ${commands}`,
     `bun ${commands}`,
     `pnpm ${commands}`,
     `yarn ${commands}`,
@@ -44,6 +45,7 @@ function npmRunCommand(commands: string): string[] {
 
 function npxCommand(commands: string): string[] {
   return [
+    `nlx ${commands}`,
     `npx ${commands}`,
     `bunx ${commands}`,
     `pnpx ${commands}`,
