@@ -10,9 +10,17 @@ export async function patternMatcher(input: string): Promise<boolean> {
     const pattern = BLOCKED_PATTERNS[i]
 
     for (let j = 0; j < commands.length; j++) {
-      const cmd = commands[j]
+      const cmd = commands[j].trim()
 
-      if (cmd.trim().startsWith(pattern)) {
+      if (
+        cmd === pattern ||
+        cmd.startsWith(pattern + ' ') ||
+        cmd.startsWith(pattern + ';') ||
+        cmd.startsWith(pattern + '|') ||
+        cmd.startsWith(pattern + '&') ||
+        cmd.startsWith(pattern + '||') ||
+        cmd.startsWith(pattern + '&&')
+      ) {
         return true
       }
     }

@@ -28,8 +28,8 @@ export const BLOCKED_PATTERNS: string[] = [
   ...npxCommand('quartz build --serve'),
   ...npxCommand('vue-cli-service serve'),
 
-  'node --watch',
   'pm2 start',
+  'node --watch',
 ]
 
 function npmRunCommand(commands: string): string[] {
