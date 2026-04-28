@@ -14,9 +14,4 @@ export async function shellMatcher(command: string): Promise<boolean> {
   }
 
   return false
-
-  BLOCKED_PATTERNS.forEach((p) => {
-    if (cmds.some((c) => c.trim().startsWith(p))) {
-    }
-  })
 }
