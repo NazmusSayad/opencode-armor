@@ -1,5 +1,5 @@
 import { Plugin } from '@opencode-ai/plugin'
-import { BLOCKED_PATTERNS } from './patterns.js'
+import { shellMatcher } from './matcher.js'
 
 // eslint-disable-next-line func-style
 export const OpenCodeCMD: Plugin = async () => {
@@ -8,22 +8,15 @@ export const OpenCodeCMD: Plugin = async () => {
       if (input.tool === 'bash') {
         const command: string = output.args.command ?? ''
 
-        const cmds = command
-          .split(/\s+/gim)
-          .join(' ')
-          .split(/;|&|&&/gim)
-
-        BLOCKED_PATTERNS.forEach((p) => {
-          if (cmds.some((c) => c.trim().startsWith(p))) {
-            throw new Error(
-              [
-                `Command usage restricted: "${command}".`,
-                `You should NOT run this command. DO NOT TRY TO BYPASS THIS RESTRICTION!`,
-                `Instead ask the user to run "${command}" or continue other tasks.`,
-              ].join('\n')
-            )
-          }
-        })
+        if (await shellMatcher(command)) {
+          throw new Error(
+            [
+              `Command usage restricted: "${command}".`,
+              `You should NOT run this command. DO NOT TRY TO BYPASS THIS RESTRICTION!`,
+              `Instead ask the user to run "${command}" or continue other tasks.`,
+            ].join('\n')
+          )
+        }
       }
     },
   }
