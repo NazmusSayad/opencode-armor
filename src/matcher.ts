@@ -1,15 +1,20 @@
 import { BLOCKED_PATTERNS } from './patterns.js'
 
-export async function shellMatcher(command: string): Promise<boolean> {
-  const cmds = command
+export async function shellMatcher(input: string): Promise<boolean> {
+  const commands = input
     .split(/\s+/gim)
     .join(' ')
     .split(/;|&|&&/gim)
 
   for (let i = 0; i < BLOCKED_PATTERNS.length; i++) {
-    const p = BLOCKED_PATTERNS[i]
-    if (cmds.some((c) => c.trim().startsWith(p))) {
-      return true
+    const pattern = BLOCKED_PATTERNS[i]
+
+    for (let j = 0; j < commands.length; j++) {
+      const cmd = commands[j]
+
+      if (cmd.trim().startsWith(pattern)) {
+        return true
+      }
     }
   }
 
