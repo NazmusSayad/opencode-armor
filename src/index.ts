@@ -13,7 +13,7 @@ export const OpenCodeCMD: Plugin = async () => {
             [
               `Command usage restricted: "${command}".`,
               `You should NOT run this command. DO NOT TRY TO BYPASS THIS RESTRICTION!`,
-              `Instead ask the user to run "${command}" or continue other tasks.`,
+              `Instead ask the user to run "${command}" or continue your other tasks.`,
             ].join('\n')
           )
         }
