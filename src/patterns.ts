@@ -4,6 +4,8 @@ export const BLOCKED_PATTERNS: string[] = [
   ...npmRunCommand('serve'),
 
   ...npxCommand('vite'),
+  ...npxCommand('vite dev'),
+  ...npxCommand('vite preview'),
   ...npxCommand('next'),
   ...npxCommand('nodemon'),
   ...npxCommand('tsx watch'),
