@@ -101,7 +101,12 @@ export default [
         },
       ],
 
-      'check-file/folder-naming-convention': [2, { '*/**': 'KEBAB_CASE' }],
+      'check-file/folder-naming-convention': [
+        2,
+        { '*/**': 'KEBAB_CASE' },
+        { ignoreWords: ['__TESTS__'] },
+      ],
+
       'check-file/filename-naming-convention': [
         2,
         { '**/*.*': 'KEBAB_CASE' },
