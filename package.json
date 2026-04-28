@@ -1,7 +1,6 @@
 {
   "name": "opencode-armor",
   "version": "0.0.2",
-  "type": "module",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -10,6 +9,7 @@
     "tc": "tsc --noEmit --watch",
     "build": "tsdown --config ./tsdown.config.ts"
   },
+  "type": "module",
   "main": "./dist/index.js",
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
