@@ -1,5 +1,5 @@
 import { Plugin } from '@opencode-ai/plugin'
-import { shellMatcher } from './matcher.js'
+import { patternMatcher } from './matcher.js'
 
 // eslint-disable-next-line func-style
 export const OpenCodeCMD: Plugin = async () => {
@@ -8,7 +8,7 @@ export const OpenCodeCMD: Plugin = async () => {
       if (input.tool === 'bash') {
         const command: string = output.args.command ?? ''
 
-        if (await shellMatcher(command)) {
+        if (await patternMatcher(command)) {
           throw new Error(
             [
               `Command usage restricted: "${command}".`,

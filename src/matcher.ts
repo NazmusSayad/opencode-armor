@@ -1,6 +1,6 @@
 import { BLOCKED_PATTERNS } from './patterns.js'
 
-export async function shellMatcher(input: string): Promise<boolean> {
+export async function patternMatcher(input: string): Promise<boolean> {
   const commands = input
     .split(/\s+/gim)
     .join(' ')
