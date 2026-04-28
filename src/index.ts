@@ -1,6 +1,7 @@
 import { Plugin } from '@opencode-ai/plugin'
 import { BLOCKED_PATTERNS } from './patterns.js'
 
+// eslint-disable-next-line func-style
 export const OpenCodeCMD: Plugin = async () => {
   return {
     'tool.execute.before': async (input, output) => {
@@ -19,7 +20,7 @@ export const OpenCodeCMD: Plugin = async () => {
                 `Command usage restricted: "${command}".`,
                 `You should NOT run this command. DO NOT TRY TO BYPASS THIS RESTRICTION!`,
                 `Instead ask the user to run "${command}" or continue other tasks.`,
-              ].join('\n'),
+              ].join('\n')
             )
           }
         })
