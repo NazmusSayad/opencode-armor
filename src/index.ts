@@ -1,6 +1,8 @@
 import { Plugin } from '@opencode-ai/plugin'
 import { patternMatcher } from './matcher.js'
 
+console.log('OpenCode Armor plugin loading...')
+
 // eslint-disable-next-line func-style
 export const OpenCodeCMD: Plugin = async () => {
   return {
@@ -8,7 +10,10 @@ export const OpenCodeCMD: Plugin = async () => {
       if (input.tool === 'bash') {
         const command: string = output.args.command ?? ''
 
-        if (await patternMatcher(command)) {
+        console.log(input)
+
+        const blockedPattern = await patternMatcher(command)
+        if (blockedPattern !== null) {
           throw new Error(
             [
               `Command usage restricted: "${command}".`,

@@ -1,6 +1,6 @@
 import { BLOCKED_PATTERNS } from './patterns.js'
 
-export async function patternMatcher(input: string): Promise<boolean> {
+export async function patternMatcher(input: string): Promise<null | string> {
   const commands = input
     .split(/\s+/gim)
     .join(' ')
@@ -21,10 +21,10 @@ export async function patternMatcher(input: string): Promise<boolean> {
         cmd.startsWith(pattern + '||') ||
         cmd.startsWith(pattern + '&&')
       ) {
-        return true
+        return pattern
       }
     }
   }
 
-  return false
+  return null
 }
