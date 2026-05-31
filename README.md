@@ -2,12 +2,6 @@
 
 OpenCode plugin that blocks bash commands for long-running dev servers, watchers, and persistent processes.
 
-## Install
-
-```bash
-npm install opencode-armor
-```
-
 ## Usage
 
 Add to your OpenCode config (`opencode.json`):
