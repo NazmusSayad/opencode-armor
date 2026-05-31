@@ -1,10 +1,7 @@
 import { PatternConfig } from './config.js'
 import { isCmdEqual } from './utils.js'
 
-const SPLIT_REGEX = new RegExp(
-  [';', '&&', '||', '&', '|'].map((k) => `\\${k}`).join('|'),
-  'gm'
-)
+const SPLIT_REGEX = /;|&|&&|(\|)|(\|\|)/gm
 
 export async function patternMatcher(
   input: string,
@@ -14,6 +11,7 @@ export async function patternMatcher(
     .toLowerCase()
     .replaceAll(/\s+/gm, ' ')
     .split(SPLIT_REGEX)
+    .filter(Boolean)
     .map((cmd) => cmd.trim())
 
   if (config.priority === 'blacklist-first') {

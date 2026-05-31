@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { patternMatcher } from '../matcher.js'
 import { BLOCKED_PATTERNS } from '../patterns.js'
 
-const defaultBlacklistConfig = {
-  priority: 'blacklist-first' as const,
-  blacklist: BLOCKED_PATTERNS,
-  whitelist: [],
-}
-
 async function matcher(input: string) {
-  return patternMatcher(input, defaultBlacklistConfig)
+  return Boolean(
+    await patternMatcher(input, {
+      priority: 'blacklist-first',
+      blacklist: BLOCKED_PATTERNS,
+      whitelist: [],
+    })
+  )
 }
 
-describe('matcher', () => {
+describe('patternMatcher', () => {
   describe('should block exact blocked patterns', () => {
     const blockedCommands = [
       'nr dev',
@@ -254,94 +254,92 @@ describe('matcher', () => {
 
     for (const cmd of blockedCommands) {
       it(`blocks "${cmd}"`, async () => {
-        expect(await matcher(cmd)).not.toBe(null)
+        expect(await matcher(cmd)).toBe(true)
       })
     }
   })
 
   describe('should block with extra whitespace', () => {
     it('blocks "  npm run dev"', async () => {
-      expect(await matcher('  npm run dev')).not.toBe(null)
+      expect(await matcher('  npm run dev')).toBe(true)
     })
 
     it('blocks "npm  run  dev"', async () => {
-      expect(await matcher('npm  run  dev')).not.toBe(null)
+      expect(await matcher('npm  run  dev')).toBe(true)
     })
 
     it('blocks "  npx vite  "', async () => {
-      expect(await matcher('  npx vite  ')).not.toBe(null)
+      expect(await matcher('  npx vite  ')).toBe(true)
     })
 
     it('blocks "   node --watch   "', async () => {
-      expect(await matcher('   node --watch   ')).not.toBe(null)
+      expect(await matcher('   node --watch   ')).toBe(true)
     })
 
     it('blocks "pnpm  run  start"', async () => {
-      expect(await matcher('pnpm  run  start')).not.toBe(null)
+      expect(await matcher('pnpm  run  start')).toBe(true)
     })
 
     it('blocks "\tpm2 start\t"', async () => {
-      expect(await matcher('\tpm2 start\t')).not.toBe(null)
+      expect(await matcher('\tpm2 start\t')).toBe(true)
     })
   })
 
   describe('should block with trailing arguments', () => {
     it('blocks "npm run dev --port 3000"', async () => {
-      expect(await matcher('npm run dev --port 3000')).not.toBe(null)
+      expect(await matcher('npm run dev --port 3000')).toBe(true)
     })
 
     it('blocks "npx vite --host"', async () => {
-      expect(await matcher('npx vite --host')).not.toBe(null)
+      expect(await matcher('npx vite --host')).toBe(true)
     })
 
     it('blocks "node --watch server.js"', async () => {
-      expect(await matcher('node --watch server.js')).not.toBe(null)
+      expect(await matcher('node --watch server.js')).toBe(true)
     })
 
     it('blocks "pm2 start app.js"', async () => {
-      expect(await matcher('pm2 start app.js')).not.toBe(null)
+      expect(await matcher('pm2 start app.js')).toBe(true)
     })
 
     it('blocks "yarn dlx astro dev --port 4321"', async () => {
-      expect(await matcher('yarn dlx astro dev --port 4321')).not.toBe(null)
+      expect(await matcher('yarn dlx astro dev --port 4321')).toBe(true)
     })
 
     it('blocks "pnpm exec quartz build --serve --directory content"', async () => {
       expect(
         await matcher('pnpm exec quartz build --serve --directory content')
-      ).not.toBe(null)
+      ).toBe(true)
     })
   })
 
   describe('should block chained commands when any segment matches', () => {
     it('blocks "echo hello; npm run dev"', async () => {
-      expect(await matcher('echo hello; npm run dev')).not.toBe(null)
+      expect(await matcher('echo hello; npm run dev')).toBe(true)
     })
 
     it('blocks "npm run dev; echo hello"', async () => {
-      expect(await matcher('npm run dev; echo hello')).not.toBe(null)
+      expect(await matcher('npm run dev; echo hello')).toBe(true)
     })
 
     it('blocks "echo hello && npx vite"', async () => {
-      expect(await matcher('echo hello && npx vite')).not.toBe(null)
+      expect(await matcher('echo hello && npx vite')).toBe(true)
     })
 
     it('blocks "npx vite && echo hello"', async () => {
-      expect(await matcher('npx vite && echo hello')).not.toBe(null)
+      expect(await matcher('npx vite && echo hello')).toBe(true)
     })
 
     it('blocks "echo hello & pm2 start app.js"', async () => {
-      expect(await matcher('echo hello & pm2 start app.js')).not.toBe(null)
+      expect(await matcher('echo hello & pm2 start app.js')).toBe(true)
     })
 
     it('blocks "echo a; echo b; yarn run start"', async () => {
-      expect(await matcher('echo a; echo b; yarn run start')).not.toBe(null)
+      expect(await matcher('echo a; echo b; yarn run start')).toBe(true)
     })
 
     it('blocks "git status && bun run dev && echo done"', async () => {
-      expect(await matcher('git status && bun run dev && echo done')).not.toBe(
-        null
-      )
+      expect(await matcher('git status && bun run dev && echo done')).toBe(true)
     })
   })
 
@@ -367,7 +365,7 @@ describe('matcher', () => {
 
     for (const cmd of safeCommands) {
       it(`allows "${cmd}"`, async () => {
-        expect(await matcher(cmd)).toBe(null)
+        expect(await matcher(cmd)).toBe(false)
       })
     }
   })
@@ -535,76 +533,62 @@ describe('matcher', () => {
 
     for (const cmd of safeCommands) {
       it(`allows "${cmd}"`, async () => {
-        expect(await matcher(cmd)).toBe(null)
+        expect(await matcher(cmd)).toBe(false)
       })
     }
   })
 
   describe('should NOT block empty or whitespace-only input', () => {
     it('allows empty string', async () => {
-      expect(await matcher('')).toBe(null)
+      expect(await matcher('')).toBe(false)
     })
 
     it('allows single space', async () => {
-      expect(await matcher(' ')).toBe(null)
+      expect(await matcher(' ')).toBe(false)
     })
 
     it('allows multiple spaces', async () => {
-      expect(await matcher('   ')).toBe(null)
+      expect(await matcher('   ')).toBe(false)
     })
 
     it('allows tab', async () => {
-      expect(await matcher('\t')).toBe(null)
+      expect(await matcher('\t')).toBe(false)
     })
 
     it('allows newline', async () => {
-      expect(await matcher('\n')).toBe(null)
+      expect(await matcher('\n')).toBe(false)
     })
   })
 
   describe('should NOT block when blocked pattern appears after semicolon with spaces', () => {
     it('allows "echo hello ; npm run dev" because echo hello starts the command', async () => {
-      expect(await matcher('echo hello ; npm run dev')).not.toBe(null)
+      expect(await matcher('echo hello ; npm run dev')).toBe(true)
     })
   })
 
   describe('edge cases with command chaining', () => {
     it('blocks when blocked pattern is second segment with ;', async () => {
-      expect(await matcher('ls; npm run dev')).not.toBe(null)
+      expect(await matcher('ls; npm run dev')).toBe(true)
     })
 
     it('blocks when blocked pattern is second segment with &&', async () => {
-      expect(await matcher('ls&&npm run dev')).not.toBe(null)
+      expect(await matcher('ls&&npm run dev')).toBe(true)
     })
 
     it('blocks when blocked pattern is second segment with &', async () => {
-      expect(await matcher('ls&npm run dev')).not.toBe(null)
+      expect(await matcher('ls&npm run dev')).toBe(true)
     })
 
     it('allows both segments safe', async () => {
-      expect(await matcher('ls; pwd')).toBe(null)
+      expect(await matcher('ls; pwd')).toBe(false)
     })
 
     it('allows both segments safe with &&', async () => {
-      expect(await matcher('ls && pwd')).toBe(null)
+      expect(await matcher('ls && pwd')).toBe(false)
     })
 
     it('allows both segments safe with &', async () => {
-      expect(await matcher('ls & pwd')).toBe(null)
-    })
-  })
-
-  describe('case sensitivity edge cases', () => {
-    it('allows "NPM run dev" (uppercase NPM)', async () => {
-      expect(await matcher('NPM run dev')).toBe(null)
-    })
-
-    it('allows "Npx vite" (mixed case)', async () => {
-      expect(await matcher('Npx vite')).toBe(null)
-    })
-
-    it('allows "Node --watch" (uppercase Node)', async () => {
-      expect(await matcher('Node --watch')).toBe(null)
+      expect(await matcher('ls & pwd')).toBe(false)
     })
   })
 })

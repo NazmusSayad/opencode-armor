@@ -104,7 +104,7 @@ export default [
       'check-file/folder-naming-convention': [
         2,
         { '*/**': 'KEBAB_CASE' },
-        { ignoreWords: ['__TESTS__'] },
+        { ignoreWords: ['__tests__'] },
       ],
 
       'check-file/filename-naming-convention': [
