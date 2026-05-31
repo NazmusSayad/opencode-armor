@@ -1,9 +1,8 @@
 import { PatternConfig } from './config.js'
 import { isCmdEqual } from './utils.js'
 
-const SPLIT_KEYWORDS = [';', '&', '&&', '|', '||']
 const SPLIT_REGEX = new RegExp(
-  SPLIT_KEYWORDS.map((k) => `\\${k}`).join('|'),
+  [';', '&&', '||', '&', '|'].map((k) => `\\${k}`).join('|'),
   'gim'
 )
 
@@ -19,22 +18,22 @@ export async function patternMatcher(
 
   if (config.priority === 'blacklist-first') {
     return patternLoopRunner(
-      config.blacklist.map((p) => p.trim().toLocaleLowerCase()),
-      config.whitelist.map((p) => p.trim().toLocaleLowerCase()),
+      config.blacklist.map((p) => p.trim().toLowerCase()),
+      config.whitelist.map((p) => p.trim().toLowerCase()),
       commands
     )
   }
 
   if (config.priority === 'whitelist-first') {
     return patternLoopRunner(
-      config.whitelist.map((p) => p.trim().toLocaleLowerCase()),
-      config.blacklist.map((p) => p.trim().toLocaleLowerCase()),
+      config.whitelist.map((p) => p.trim().toLowerCase()),
+      config.blacklist.map((p) => p.trim().toLowerCase()),
       commands
     )
   }
 
   throw new Error(
-    `Unknown priority: "${config.priority}". Expected "blacklist" or "whitelist".`
+    `Unknown priority: "${config.priority}". Expected "blacklist-first" or "whitelist-first".`
   )
 }
 
@@ -51,8 +50,8 @@ function patternLoopRunner(
 
       const matched = isCmdEqual(cmd, ptn)
       if (matched) {
-        for (let i = 0; i < patterns2.length; i++) {
-          const igPtn = patterns2[i]
+        for (let k = 0; k < patterns2.length; k++) {
+          const igPtn = patterns2[k]
 
           const ignored = isCmdEqual(cmd, igPtn)
           if (ignored) continue
