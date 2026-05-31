@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import z from 'zod'
-import { optionalConfigSchema } from './config.js'
+import { configSchema } from './config.js'
 
-const schema = optionalConfigSchema
+const schema = configSchema
   .extend({ $schema: z.string().optional() })
   .toJSONSchema()
 

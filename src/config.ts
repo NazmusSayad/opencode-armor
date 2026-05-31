@@ -4,7 +4,7 @@ import path from 'path'
 import z from 'zod'
 import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './patterns.js'
 
-const configSchema = z.object({
+export const configSchema = z.object({
   priority: z.enum(['blacklist', 'whitelist']).optional(),
   blacklist: z.array(z.string()).optional(),
   whitelist: z.array(z.string()).optional(),
