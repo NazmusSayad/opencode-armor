@@ -11,6 +11,9 @@ const configSchema = z.object({
 
   ignoreDefaultBlacklist: z.boolean().optional(),
   ignoreDefaultWhitelist: z.boolean().optional(),
+
+  ignoreGlobalBlacklist: z.boolean().optional(),
+  ignoreGlobalWhitelist: z.boolean().optional(),
 })
 
 async function readConfigFile(
@@ -24,41 +27,59 @@ async function readConfigFile(
   }
 }
 
-const GLOBAL_CONFIG_PATH = path.join(os.homedir(), '.opencode-armor.json')
+const GLOBAL_CONFIG_PATH = path.join(os.homedir(), './.opencode-armor.json')
 const globalConfigPromise = readConfigFile(GLOBAL_CONFIG_PATH)
 
 export type PatternConfig =
   ReturnType<typeof resolveConfig> extends Promise<infer R> ? R : never
 
 export async function resolveConfig(workdir: string) {
-  const CWD_CONFIG_PATH = path.join(workdir, '.opencode-armor.json')
+  const PROJECT_CONFIG_PATH = path.join(workdir, './.opencode-armor.json')
+  const OPENCODE_CONFIG_PATH = path.join(workdir, './.opencode/armor.json')
 
-  const [globalConfig, projectConfig] = await Promise.all([
+  const [globalConfig, projectConfig, opencodeConfig] = await Promise.all([
     globalConfigPromise,
-    readConfigFile(CWD_CONFIG_PATH),
+    readConfigFile(PROJECT_CONFIG_PATH),
+    readConfigFile(OPENCODE_CONFIG_PATH),
   ])
 
   const ignoreDefaultBlacklist =
+    opencodeConfig.ignoreDefaultBlacklist ??
     projectConfig.ignoreDefaultBlacklist ??
     globalConfig.ignoreDefaultBlacklist ??
     false
 
   const ignoreDefaultWhitelist =
+    opencodeConfig.ignoreDefaultWhitelist ??
     projectConfig.ignoreDefaultWhitelist ??
     globalConfig.ignoreDefaultWhitelist ??
+    false
+
+  const ignoreGlobalBlacklist =
+    opencodeConfig.ignoreGlobalBlacklist ??
+    projectConfig.ignoreGlobalBlacklist ??
+    globalConfig.ignoreGlobalBlacklist ??
+    false
+
+  const ignoreGlobalWhitelist =
+    opencodeConfig.ignoreGlobalWhitelist ??
+    projectConfig.ignoreGlobalWhitelist ??
+    globalConfig.ignoreGlobalWhitelist ??
     false
 
   return {
     priority: projectConfig.priority ?? globalConfig.priority ?? 'whitelist',
     blacklist: [
       ...(ignoreDefaultBlacklist ? [] : BLOCKED_PATTERNS),
-      ...(globalConfig.blacklist ?? []),
+      ...(ignoreGlobalBlacklist ? [] : (globalConfig.blacklist ?? [])),
       ...(projectConfig.blacklist ?? []),
+      ...(opencodeConfig.blacklist ?? []),
     ],
     whitelist: [
       ...(ignoreDefaultWhitelist ? [] : ALLOWED_PATTERNS),
-      ...(globalConfig.whitelist ?? []),
+      ...(ignoreGlobalWhitelist ? [] : (globalConfig.whitelist ?? [])),
       ...(projectConfig.whitelist ?? []),
+      ...(opencodeConfig.whitelist ?? []),
     ],
   }
 }
