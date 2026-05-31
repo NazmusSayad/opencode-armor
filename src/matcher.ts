@@ -23,10 +23,7 @@ export async function patternMatcher(
         const blocked = isCmdEqual(cmd, ptn)
 
         if (blocked) {
-          const allowed = config.whitelist.some((igPtn) =>
-            isCmdEqual(cmd, igPtn)
-          )
-
+          const allowed = config.whitelist.some((p) => isCmdEqual(cmd, p))
           if (!allowed) return ptn
         }
       }
@@ -41,13 +38,10 @@ export async function patternMatcher(
 
       for (let j = 0; j < commands.length; j++) {
         const cmd = commands[j]
-
         const allowed = isCmdEqual(cmd, ptn)
-        if (allowed) {
-          const blocked = config.blacklist.some((igPtn) =>
-            isCmdEqual(cmd, igPtn)
-          )
 
+        if (allowed) {
+          const blocked = config.blacklist.some((p) => isCmdEqual(cmd, p))
           if (blocked) return ptn
         }
       }
