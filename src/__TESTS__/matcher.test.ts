@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { patternMatcher } from '../matcher.js'
+import { BLOCKED_PATTERNS } from '../patterns.js'
 
-describe('patternMatcher', () => {
+const defaultBlacklistConfig = {
+  priority: 'blacklist' as const,
+  blacklist: BLOCKED_PATTERNS,
+  whitelist: [],
+}
+
+async function matcher(input: string) {
+  return patternMatcher(input, defaultBlacklistConfig)
+}
+
+describe('matcher', () => {
   describe('should block exact blocked patterns', () => {
     const blockedCommands = [
       'nr dev',
@@ -243,96 +254,94 @@ describe('patternMatcher', () => {
 
     for (const cmd of blockedCommands) {
       it(`blocks "${cmd}"`, async () => {
-        expect(await patternMatcher(cmd)).toBe(true)
+        expect(await matcher(cmd)).not.toBe(null)
       })
     }
   })
 
   describe('should block with extra whitespace', () => {
     it('blocks "  npm run dev"', async () => {
-      expect(await patternMatcher('  npm run dev')).toBe(true)
+      expect(await matcher('  npm run dev')).not.toBe(null)
     })
 
     it('blocks "npm  run  dev"', async () => {
-      expect(await patternMatcher('npm  run  dev')).toBe(true)
+      expect(await matcher('npm  run  dev')).not.toBe(null)
     })
 
     it('blocks "  npx vite  "', async () => {
-      expect(await patternMatcher('  npx vite  ')).toBe(true)
+      expect(await matcher('  npx vite  ')).not.toBe(null)
     })
 
     it('blocks "   node --watch   "', async () => {
-      expect(await patternMatcher('   node --watch   ')).toBe(true)
+      expect(await matcher('   node --watch   ')).not.toBe(null)
     })
 
     it('blocks "pnpm  run  start"', async () => {
-      expect(await patternMatcher('pnpm  run  start')).toBe(true)
+      expect(await matcher('pnpm  run  start')).not.toBe(null)
     })
 
     it('blocks "\tpm2 start\t"', async () => {
-      expect(await patternMatcher('\tpm2 start\t')).toBe(true)
+      expect(await matcher('\tpm2 start\t')).not.toBe(null)
     })
   })
 
   describe('should block with trailing arguments', () => {
     it('blocks "npm run dev --port 3000"', async () => {
-      expect(await patternMatcher('npm run dev --port 3000')).toBe(true)
+      expect(await matcher('npm run dev --port 3000')).not.toBe(null)
     })
 
     it('blocks "npx vite --host"', async () => {
-      expect(await patternMatcher('npx vite --host')).toBe(true)
+      expect(await matcher('npx vite --host')).not.toBe(null)
     })
 
     it('blocks "node --watch server.js"', async () => {
-      expect(await patternMatcher('node --watch server.js')).toBe(true)
+      expect(await matcher('node --watch server.js')).not.toBe(null)
     })
 
     it('blocks "pm2 start app.js"', async () => {
-      expect(await patternMatcher('pm2 start app.js')).toBe(true)
+      expect(await matcher('pm2 start app.js')).not.toBe(null)
     })
 
     it('blocks "yarn dlx astro dev --port 4321"', async () => {
-      expect(await patternMatcher('yarn dlx astro dev --port 4321')).toBe(true)
+      expect(await matcher('yarn dlx astro dev --port 4321')).not.toBe(null)
     })
 
     it('blocks "pnpm exec quartz build --serve --directory content"', async () => {
       expect(
-        await patternMatcher(
-          'pnpm exec quartz build --serve --directory content'
-        )
-      ).toBe(true)
+        await matcher('pnpm exec quartz build --serve --directory content')
+      ).not.toBe(null)
     })
   })
 
   describe('should block chained commands when any segment matches', () => {
     it('blocks "echo hello; npm run dev"', async () => {
-      expect(await patternMatcher('echo hello; npm run dev')).toBe(true)
+      expect(await matcher('echo hello; npm run dev')).not.toBe(null)
     })
 
     it('blocks "npm run dev; echo hello"', async () => {
-      expect(await patternMatcher('npm run dev; echo hello')).toBe(true)
+      expect(await matcher('npm run dev; echo hello')).not.toBe(null)
     })
 
     it('blocks "echo hello && npx vite"', async () => {
-      expect(await patternMatcher('echo hello && npx vite')).toBe(true)
+      expect(await matcher('echo hello && npx vite')).not.toBe(null)
     })
 
     it('blocks "npx vite && echo hello"', async () => {
-      expect(await patternMatcher('npx vite && echo hello')).toBe(true)
+      expect(await matcher('npx vite && echo hello')).not.toBe(null)
     })
 
     it('blocks "echo hello & pm2 start app.js"', async () => {
-      expect(await patternMatcher('echo hello & pm2 start app.js')).toBe(true)
+      expect(await matcher('echo hello & pm2 start app.js')).not.toBe(null)
     })
 
     it('blocks "echo a; echo b; yarn run start"', async () => {
-      expect(await patternMatcher('echo a; echo b; yarn run start')).toBe(true)
+      expect(await matcher('echo a; echo b; yarn run start')).not.toBe(null)
     })
 
     it('blocks "git status && bun run dev && echo done"', async () => {
-      expect(
-        await patternMatcher('git status && bun run dev && echo done')
-      ).toBe(true)
+      expect(await matcher('git status && bun run dev && echo done')).not.toBe(
+        null
+      )
     })
   })
 
@@ -358,7 +367,7 @@ describe('patternMatcher', () => {
 
     for (const cmd of safeCommands) {
       it(`allows "${cmd}"`, async () => {
-        expect(await patternMatcher(cmd)).toBe(false)
+        expect(await matcher(cmd)).toBe(null)
       })
     }
   })
@@ -526,76 +535,76 @@ describe('patternMatcher', () => {
 
     for (const cmd of safeCommands) {
       it(`allows "${cmd}"`, async () => {
-        expect(await patternMatcher(cmd)).toBe(false)
+        expect(await matcher(cmd)).toBe(null)
       })
     }
   })
 
   describe('should NOT block empty or whitespace-only input', () => {
     it('allows empty string', async () => {
-      expect(await patternMatcher('')).toBe(false)
+      expect(await matcher('')).toBe(null)
     })
 
     it('allows single space', async () => {
-      expect(await patternMatcher(' ')).toBe(false)
+      expect(await matcher(' ')).toBe(null)
     })
 
     it('allows multiple spaces', async () => {
-      expect(await patternMatcher('   ')).toBe(false)
+      expect(await matcher('   ')).toBe(null)
     })
 
     it('allows tab', async () => {
-      expect(await patternMatcher('\t')).toBe(false)
+      expect(await matcher('\t')).toBe(null)
     })
 
     it('allows newline', async () => {
-      expect(await patternMatcher('\n')).toBe(false)
+      expect(await matcher('\n')).toBe(null)
     })
   })
 
   describe('should NOT block when blocked pattern appears after semicolon with spaces', () => {
     it('allows "echo hello ; npm run dev" because echo hello starts the command', async () => {
-      expect(await patternMatcher('echo hello ; npm run dev')).toBe(true)
+      expect(await matcher('echo hello ; npm run dev')).not.toBe(null)
     })
   })
 
   describe('edge cases with command chaining', () => {
     it('blocks when blocked pattern is second segment with ;', async () => {
-      expect(await patternMatcher('ls; npm run dev')).toBe(true)
+      expect(await matcher('ls; npm run dev')).not.toBe(null)
     })
 
     it('blocks when blocked pattern is second segment with &&', async () => {
-      expect(await patternMatcher('ls&&npm run dev')).toBe(true)
+      expect(await matcher('ls&&npm run dev')).not.toBe(null)
     })
 
     it('blocks when blocked pattern is second segment with &', async () => {
-      expect(await patternMatcher('ls&npm run dev')).toBe(true)
+      expect(await matcher('ls&npm run dev')).not.toBe(null)
     })
 
     it('allows both segments safe', async () => {
-      expect(await patternMatcher('ls; pwd')).toBe(false)
+      expect(await matcher('ls; pwd')).toBe(null)
     })
 
     it('allows both segments safe with &&', async () => {
-      expect(await patternMatcher('ls && pwd')).toBe(false)
+      expect(await matcher('ls && pwd')).toBe(null)
     })
 
     it('allows both segments safe with &', async () => {
-      expect(await patternMatcher('ls & pwd')).toBe(false)
+      expect(await matcher('ls & pwd')).toBe(null)
     })
   })
 
   describe('case sensitivity edge cases', () => {
     it('allows "NPM run dev" (uppercase NPM)', async () => {
-      expect(await patternMatcher('NPM run dev')).toBe(false)
+      expect(await matcher('NPM run dev')).toBe(null)
     })
 
     it('allows "Npx vite" (mixed case)', async () => {
-      expect(await patternMatcher('Npx vite')).toBe(false)
+      expect(await matcher('Npx vite')).toBe(null)
     })
 
     it('allows "Node --watch" (uppercase Node)', async () => {
-      expect(await patternMatcher('Node --watch')).toBe(false)
+      expect(await matcher('Node --watch')).toBe(null)
     })
   })
 })
