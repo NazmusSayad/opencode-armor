@@ -11,48 +11,52 @@ export async function patternMatcher(
     .toLowerCase()
     .replaceAll(/\s+/gm, ' ')
     .split(SPLIT_REGEX)
+    .map((cmd) => cmd?.trim?.())
     .filter(Boolean)
-    .map((cmd) => cmd.trim())
 
-  if (config.priority === 'blacklist-first') {
-    return patternLoopRunner(
-      config.blacklist.map((p) => p.trim().toLowerCase()),
-      config.whitelist.map((p) => p.trim().toLowerCase()),
-      commands
-    )
+  if (config.priority === 'whitelist') {
+    for (let i = 0; i < config.blacklist.length; i++) {
+      const ptn = config.blacklist[i]
+
+      for (let j = 0; j < commands.length; j++) {
+        const cmd = commands[j]
+        const blocked = isCmdEqual(cmd, ptn)
+
+        if (blocked) {
+          const allowed = config.whitelist.some((igPtn) =>
+            isCmdEqual(cmd, igPtn)
+          )
+
+          if (!allowed) return ptn
+        }
+      }
+    }
+
+    return null
   }
 
-  if (config.priority === 'whitelist-first') {
-    return patternLoopRunner(
-      config.whitelist.map((p) => p.trim().toLowerCase()),
-      config.blacklist.map((p) => p.trim().toLowerCase()),
-      commands
-    )
+  if (config.priority === 'blacklist') {
+    for (let i = 0; i < config.whitelist.length; i++) {
+      const ptn = config.whitelist[i]
+
+      for (let j = 0; j < commands.length; j++) {
+        const cmd = commands[j]
+
+        const allowed = isCmdEqual(cmd, ptn)
+        if (allowed) {
+          const blocked = config.blacklist.some((igPtn) =>
+            isCmdEqual(cmd, igPtn)
+          )
+
+          if (blocked) return ptn
+        }
+      }
+    }
+
+    return null
   }
 
   throw new Error(
-    `Unknown priority: "${config.priority}". Expected "blacklist-first" or "whitelist-first".`
+    `Unknown priority: "${config.priority}". Expected "blacklist" or "whitelist".`
   )
-}
-
-function patternLoopRunner(
-  expectedPatterns: string[],
-  ignoredPatterns: string[],
-  commands: string[]
-) {
-  for (let i = 0; i < expectedPatterns.length; i++) {
-    const ptn = expectedPatterns[i]
-
-    for (let j = 0; j < commands.length; j++) {
-      const cmd = commands[j]
-
-      const matched = isCmdEqual(cmd, ptn)
-      if (matched) {
-        const ignored = ignoredPatterns.some((igPtn) => isCmdEqual(cmd, igPtn))
-        if (!ignored) return ptn
-      }
-    }
-  }
-
-  return null
 }

@@ -5,7 +5,7 @@ import z from 'zod'
 import { BLOCKED_PATTERNS } from './patterns.js'
 
 const configSchema = z.object({
-  priority: z.enum(['blacklist-first', 'whitelist-first']),
+  priority: z.enum(['blacklist', 'whitelist']),
   blacklist: z.array(z.string()),
   whitelist: z.array(z.string()),
 })
@@ -35,7 +35,7 @@ export async function resolveConfig(workdir: string): Promise<PatternConfig> {
   ])
 
   return {
-    priority: cwdConfig.priority ?? globalConfig.priority ?? 'blacklist-first',
+    priority: cwdConfig.priority ?? globalConfig.priority ?? 'whitelist',
     blacklist: [
       ...BLOCKED_PATTERNS,
       ...(globalConfig.blacklist ?? []),

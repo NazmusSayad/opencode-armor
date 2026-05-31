@@ -5,7 +5,7 @@ import { BLOCKED_PATTERNS } from '../patterns.js'
 async function matcher(input: string) {
   return Boolean(
     await patternMatcher(input, {
-      priority: 'blacklist-first',
+      priority: 'whitelist',
       blacklist: BLOCKED_PATTERNS,
       whitelist: [],
     })

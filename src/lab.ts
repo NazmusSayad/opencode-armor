@@ -1,10 +1,13 @@
 import { patternMatcher } from './matcher.js'
-import { BLOCKED_PATTERNS } from './patterns.js'
 
-console.log(
-  await patternMatcher('ls&npm run dev', {
-    priority: 'blacklist-first',
-    blacklist: BLOCKED_PATTERNS,
-    whitelist: [],
-  })
-)
+const result = await patternMatcher('npm run build', {
+  priority: 'whitelist',
+  blacklist: ['npm run dev', 'npm run build'],
+  whitelist: ['npm run dev'],
+})
+
+if (typeof result === 'string') {
+  console.log(`❌ Blocked pattern detected: "${result}"`)
+} else {
+  console.log('✅ No blocked patterns detected.')
+}
