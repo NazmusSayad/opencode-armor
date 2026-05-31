@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 import packageJSON from './package.json' with { type: 'json' }
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.OPENCODE_ARMOR_DEV_MODE === 'true'
 
 export default defineConfig({
   entry: {
