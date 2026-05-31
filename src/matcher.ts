@@ -1,5 +1,4 @@
 import { PatternConfig } from './config.js'
-import { BLOCKED_PATTERNS } from './patterns.js'
 import { isCmdEqual } from './utils.js'
 
 export async function patternMatcher(
@@ -11,17 +10,45 @@ export async function patternMatcher(
     .join(' ')
     .split(/;|&|&&/gim)
 
-  for (let i = 0; i < BLOCKED_PATTERNS.length; i++) {
-    const pattern = BLOCKED_PATTERNS[i]
+  if (config.priority === 'blacklist') {
+    for (let i = 0; i < config.blacklist.length; i++) {
+      const pattern = config.blacklist[i]
 
-    for (let j = 0; j < commands.length; j++) {
-      const cmd = commands[j].trim()
+      for (let j = 0; j < commands.length; j++) {
+        const cmd = commands[j].trim()
 
-      if (isCmdEqual(cmd, pattern)) {
-        return pattern
+        if (isCmdEqual(cmd, pattern)) {
+          return pattern
+        }
       }
     }
+
+    return null
   }
 
-  return null
+  if (config.priority === 'whitelist') {
+    for (let j = 0; j < commands.length; j++) {
+      const cmd = commands[j].trim()
+      let allowed = false
+
+      for (let i = 0; i < config.whitelist.length; i++) {
+        const pattern = config.whitelist[i]
+
+        if (isCmdEqual(cmd, pattern)) {
+          allowed = true
+          break
+        }
+      }
+
+      if (!allowed) {
+        return cmd
+      }
+    }
+
+    return null
+  }
+
+  throw new Error(
+    `Unknown priority: "${config.priority}". Expected "blacklist" or "whitelist".`
+  )
 }
