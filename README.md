@@ -22,6 +22,17 @@ Dev servers and watchers like:
 
 And similar commands across all package managers (npm, yarn, pnpm, bun).
 
+## Custom Config
+
+Create `~/.opencode-armor.json` or `.opencode-armor.json` in your project directory to override default runtimes:
+
+```json
+{
+  "$schema": "https://github.com/NazmusSayad/opencode-armor/raw/refs/heads/schema/schema.json",
+   
+}
+```
+
 ## License
 
 MIT

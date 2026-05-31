@@ -1,6 +1,11 @@
+import { PatternConfig } from './config.js'
 import { BLOCKED_PATTERNS } from './patterns.js'
+import { isCmdEqual } from './utils.js'
 
-export async function patternMatcher(input: string): Promise<null | string> {
+export async function patternMatcher(
+  input: string,
+  config: PatternConfig
+): Promise<null | string> {
   const commands = input
     .split(/\s+/gim)
     .join(' ')
@@ -12,15 +17,7 @@ export async function patternMatcher(input: string): Promise<null | string> {
     for (let j = 0; j < commands.length; j++) {
       const cmd = commands[j].trim()
 
-      if (
-        cmd === pattern ||
-        cmd.startsWith(pattern + ' ') ||
-        cmd.startsWith(pattern + ';') ||
-        cmd.startsWith(pattern + '|') ||
-        cmd.startsWith(pattern + '&') ||
-        cmd.startsWith(pattern + '||') ||
-        cmd.startsWith(pattern + '&&')
-      ) {
+      if (isCmdEqual(cmd, pattern)) {
         return pattern
       }
     }
