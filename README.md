@@ -49,7 +49,3 @@ Create `.opencode-armor.json` in your project root (or `~/.opencode-armor.json` 
 - `ignoreGlobalWhitelist` — skip global whitelist entries.
 
 Pattern matching is case-insensitive and normalizes extra whitespace.
-
-## License
-
-MIT
