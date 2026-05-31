@@ -3,7 +3,7 @@ import { patternMatcher } from '../matcher.js'
 import { BLOCKED_PATTERNS } from '../patterns.js'
 
 const defaultBlacklistConfig = {
-  priority: 'blacklist' as const,
+  priority: 'blacklist-first' as const,
   blacklist: BLOCKED_PATTERNS,
   whitelist: [],
 }
