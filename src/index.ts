@@ -1,9 +1,9 @@
 import { Plugin } from '@opencode-ai/plugin'
 import { resolveConfig } from './config.js'
-import { log } from './logger.js'
+import { logger } from './logger.js'
 import { patternMatcher } from './matcher.js'
 
-log.log('OpenCode Armor plugin loading...')
+logger.info('OpenCode Armor plugin loading...')
 
 // eslint-disable-next-line func-style
 export const OpenCodeCMD: Plugin = async (pluginInput) => {
@@ -18,10 +18,14 @@ export const OpenCodeCMD: Plugin = async (pluginInput) => {
           pluginInput.worktree ??
           pluginInput.project.worktree
 
+        logger.info(`Checking command: "${command}" in workdir: "${workdir}"`)
+
         const config = await resolveConfig(workdir)
         const blockedPattern = await patternMatcher(command, config)
 
         if (blockedPattern !== null) {
+          logger.info(`Command usage restricted: "${command}".`)
+
           throw new Error(
             [
               `Command usage restricted: "${command}".`,
@@ -30,6 +34,10 @@ export const OpenCodeCMD: Plugin = async (pluginInput) => {
             ].join('\n')
           )
         }
+
+        logger.info(
+          `Command is allowed: "${command}". Proceeding with execution.`
+        )
       }
     },
   }

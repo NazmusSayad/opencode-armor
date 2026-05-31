@@ -14,7 +14,7 @@ function createStream() {
   return stream as unknown as NodeJS.WriteStream
 }
 
-export const log = consola.create(
+export const logger = consola.create(
   process.env.OPENCODE_ARMOR_DEV_MODE === 'true'
     ? { stdout: createStream() }
     : { level: -1 }
