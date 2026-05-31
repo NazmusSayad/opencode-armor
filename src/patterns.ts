@@ -1,3 +1,5 @@
+export const ALLOWED_PATTERNS: string[] = [...npxCommand('next lint')]
+
 export const BLOCKED_PATTERNS: string[] = [
   ...npmRunCommand('dev'),
   ...npmRunCommand('start'),

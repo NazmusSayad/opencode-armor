@@ -2,48 +2,63 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 import z from 'zod'
-import { BLOCKED_PATTERNS } from './patterns.js'
+import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './patterns.js'
 
 const configSchema = z.object({
-  priority: z.enum(['blacklist', 'whitelist']),
-  blacklist: z.array(z.string()),
-  whitelist: z.array(z.string()),
+  priority: z.enum(['blacklist', 'whitelist']).optional(),
+  blacklist: z.array(z.string()).optional(),
+  whitelist: z.array(z.string()).optional(),
+
+  ignoreDefaultBlacklist: z.boolean().optional(),
+  ignoreDefaultWhitelist: z.boolean().optional(),
 })
 
-export const optionalConfigSchema = configSchema.partial()
 async function readConfigFile(
   input: string
-): Promise<z.infer<typeof optionalConfigSchema>> {
+): Promise<z.infer<typeof configSchema>> {
   try {
     const data = await fs.readFile(input, 'utf-8')
-    return optionalConfigSchema.parseAsync(JSON.parse(data))
+    return configSchema.parseAsync(JSON.parse(data))
   } catch {
-    return optionalConfigSchema.parseAsync({})
+    return configSchema.parseAsync({})
   }
 }
 
 const GLOBAL_CONFIG_PATH = path.join(os.homedir(), '.opencode-armor.json')
 const globalConfigPromise = readConfigFile(GLOBAL_CONFIG_PATH)
 
-export type PatternConfig = z.infer<typeof configSchema>
-export async function resolveConfig(workdir: string): Promise<PatternConfig> {
+export type PatternConfig =
+  ReturnType<typeof resolveConfig> extends Promise<infer R> ? R : never
+
+export async function resolveConfig(workdir: string) {
   const CWD_CONFIG_PATH = path.join(workdir, '.opencode-armor.json')
 
-  const [globalConfig, cwdConfig] = await Promise.all([
+  const [globalConfig, projectConfig] = await Promise.all([
     globalConfigPromise,
     readConfigFile(CWD_CONFIG_PATH),
   ])
 
+  const ignoreDefaultBlacklist =
+    projectConfig.ignoreDefaultBlacklist ??
+    globalConfig.ignoreDefaultBlacklist ??
+    false
+
+  const ignoreDefaultWhitelist =
+    projectConfig.ignoreDefaultWhitelist ??
+    globalConfig.ignoreDefaultWhitelist ??
+    false
+
   return {
-    priority: cwdConfig.priority ?? globalConfig.priority ?? 'whitelist',
+    priority: projectConfig.priority ?? globalConfig.priority ?? 'whitelist',
     blacklist: [
-      ...BLOCKED_PATTERNS,
+      ...(ignoreDefaultBlacklist ? [] : BLOCKED_PATTERNS),
       ...(globalConfig.blacklist ?? []),
-      ...(cwdConfig.blacklist ?? []),
+      ...(projectConfig.blacklist ?? []),
     ],
     whitelist: [
+      ...(ignoreDefaultWhitelist ? [] : ALLOWED_PATTERNS),
       ...(globalConfig.whitelist ?? []),
-      ...(cwdConfig.whitelist ?? []),
+      ...(projectConfig.whitelist ?? []),
     ],
   }
 }
