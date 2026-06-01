@@ -1,3 +1,10 @@
+export const BLOCKED_MESSAGE = [
+  `Command usage restricted: "{{COMMAND}}".`,
+  `DO NOT TRY or CHEAT TO BYPASS THIS RESTRICTION!`,
+  `Instead guide the user to run the command after finishing other tasks.`,
+  `If other tasks are blocked because of this commands then stop and ask the user to run the command.`,
+].join('\n')
+
 export const ALLOWED_PATTERNS: string[] = [...npxCommand('next lint')]
 
 export const BLOCKED_PATTERNS: string[] = [

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { BLOCKED_PATTERNS } from '../constants.js'
 import { patternMatcher } from '../matcher.js'
-import { BLOCKED_PATTERNS } from '../patterns.js'
 
 async function matcher(input: string) {
   return Boolean(
@@ -8,6 +8,11 @@ async function matcher(input: string) {
       priority: 'whitelist',
       blacklist: BLOCKED_PATTERNS,
       whitelist: [],
+      blockedMessage: undefined,
+      injectCommandAfter: undefined,
+      injectCommandAfterComment: undefined,
+      injectCommandBefore: undefined,
+      injectCommandBeforeComment: undefined,
     })
   )
 }

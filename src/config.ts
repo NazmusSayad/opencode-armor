@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 import z from 'zod'
-import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './patterns.js'
+import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './constants.js'
 import { pickFirst } from './utils.js'
 
 export const configSchema = z.object({
@@ -10,72 +10,67 @@ export const configSchema = z.object({
     .enum(['blacklist', 'whitelist'])
     .optional()
     .describe(
-      'Determines whether the blacklist or whitelist takes precedence. If set to "blacklist", the blacklist will be checked first, and if a command matches an entry in the blacklist, it will be blocked regardless of the whitelist. If set to "whitelist", the whitelist will be checked first, and only commands that match an entry in the whitelist will be allowed, regardless of the blacklist.'
+      'Which list takes precedence: "blacklist" blocks first; "whitelist" allows only matches.'
     ),
 
   blacklist: z
     .array(z.string())
     .optional()
-    .describe(
-      'An array of command patterns that are blocked. If a command matches any of the patterns in this list, it will be blocked from execution.'
-    ),
+    .describe('Blocked command patterns.'),
 
   whitelist: z
     .array(z.string())
     .optional()
+    .describe('Allowed command patterns.'),
+
+  blockedMessage: z
+    .string()
+    .optional()
     .describe(
-      'An array of command patterns that are allowed. If a command matches any of the patterns in this list, it will be allowed to execute.'
+      'Message shown when a command is blocked. Use {{COMMAND}} or {{PATTERN}} placeholders.'
     ),
 
   ignoreDefaultBlacklist: z
     .boolean()
     .optional()
-    .describe(
-      'If set to true, the default blacklist patterns will be ignored. This means that only the patterns specified in the "blacklist" array will be considered for blocking commands.'
-    ),
+    .describe('Ignore the default blacklist patterns.'),
   ignoreDefaultWhitelist: z
     .boolean()
     .optional()
-    .describe(
-      'If set to true, the default whitelist patterns will be ignored. This means that only the patterns specified in the "whitelist" array will be considered for allowing commands.'
-    ),
+    .describe('Ignore the default whitelist patterns.'),
 
   ignoreGlobalBlacklist: z
     .boolean()
     .optional()
-    .describe(
-      'If set to true, the global blacklist patterns will be ignored. This means that only the patterns specified in the "blacklist" array will be considered for blocking commands.'
-    ),
+    .describe('Ignore the global blacklist patterns.'),
   ignoreGlobalWhitelist: z
     .boolean()
     .optional()
-    .describe(
-      'If set to true, the global whitelist patterns will be ignored. This means that only the patterns specified in the "whitelist" array will be considered for allowing commands.'
-    ),
+    .describe('Ignore the global whitelist patterns.'),
 
   injectCommandBefore: z
     .string()
     .optional()
     .describe(
-      'If specified, this command will be injected before the user command. This can be used to set up the environment or perform any necessary preparations before the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+      'Command injected before the user command. Newlines are replaced with semicolons.'
     ),
   injectCommandBeforeComment: z
     .string()
     .optional()
     .describe(
-      'A comment to be added before the injected command. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+      'Comment added before the injected command. Newlines are replaced with semicolons.'
     ),
   injectCommandAfter: z
     .string()
     .optional()
     .describe(
-      'If specified, this command will be injected after the user command. This can be used to perform any necessary cleanup or additional operations after the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+      'Command injected after the user command. Newlines are replaced with semicolons.'
     ),
   injectCommandAfterComment: z
     .string()
     .optional()
     .describe(
-      'A comment to be added after the injected command. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+      'Comment added after the injected command. Newlines are replaced with semicolons.'
     ),
 })
 
@@ -93,8 +88,7 @@ async function readConfigFile(
 const GLOBAL_CONFIG_PATH = path.join(os.homedir(), './.opencode-armor.json')
 const globalConfigPromise = readConfigFile(GLOBAL_CONFIG_PATH)
 
-export type PatternConfig =
-  ReturnType<typeof resolveConfig> extends Promise<infer R> ? R : never
+export type PatternConfig = Awaited<ReturnType<typeof resolveConfig>>
 
 export async function resolveConfig(workdir: string) {
   const PROJECT_CONFIG_PATH = path.join(workdir, './.opencode-armor.json')
@@ -155,6 +149,12 @@ export async function resolveConfig(workdir: string) {
         ? []
         : ALLOWED_PATTERNS),
     ],
+
+    blockedMessage: pickFirst(
+      opencodeConfig.blockedMessage,
+      projectConfig.blockedMessage,
+      globalConfig.blockedMessage
+    )?.trim(),
 
     injectCommandBefore: pickFirst(
       opencodeConfig.injectCommandBefore,

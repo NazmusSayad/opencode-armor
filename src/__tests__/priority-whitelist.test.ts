@@ -10,6 +10,11 @@ async function matcher(
       priority: 'whitelist',
       blacklist: config.blacklist,
       whitelist: config.whitelist,
+      blockedMessage: undefined,
+      injectCommandAfter: undefined,
+      injectCommandAfterComment: undefined,
+      injectCommandBefore: undefined,
+      injectCommandBeforeComment: undefined,
     })
   )
 }

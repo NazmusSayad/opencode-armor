@@ -1,5 +1,6 @@
 import { Plugin } from '@opencode-ai/plugin'
 import { resolveConfig } from './config.js'
+import { BLOCKED_MESSAGE } from './constants.js'
 import { console } from './logger.js'
 import { patternMatcher } from './matcher.js'
 import { packageJSON } from './package.js'
@@ -25,14 +26,10 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
         const blockedPattern = await patternMatcher(command, config)
         if (blockedPattern !== null) {
           console.info(`Command usage restricted: "${command}".`)
-
           throw new Error(
-            [
-              `Command usage restricted: "${command}".`,
-              `DO NOT TRY or CHEAT TO BYPASS THIS RESTRICTION!`,
-              `Instead guide the user to run the command after finishing other tasks.`,
-              `If other tasks are blocked because of this commands then stop and ask the user to run the command.`,
-            ].join('\n')
+            (config.blockedMessage ?? BLOCKED_MESSAGE)
+              .replaceAll('{{COMMAND}}', command)
+              .replaceAll('{{PATTERN}}', blockedPattern)
           )
         }
 
