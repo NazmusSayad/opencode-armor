@@ -1,9 +1,9 @@
 export const BLOCKED_MESSAGE = [
-  'Failed to execute `{{COMMAND}}`',
-  'REASON: `{{PATTERN}}` is restricted',
-  'Continue with any remaining tasks that do not require this command',
-  'If further progress requires this command, stop and ask the user to run it',
-  '**IMPORTANT**: DO NOT ATTEMPT TO BYPASS THIS RESTRICTION UNDER ANY CIRCUMSTANCES',
+  'Failed to execute `{{COMMAND}}`!',
+  'REASON: `{{PATTERN}}` is restricted!',
+  'Continue with any remaining tasks that do not require this command.',
+  'If further progress requires this command, stop and ask the user to run it.',
+  '**IMPORTANT**: DO NOT ATTEMPT TO BYPASS THIS RESTRICTION UNDER ANY CIRCUMSTANCES!',
 ].join('\n')
 
 export const ALLOWED_PATTERNS: string[] = [...npxCommand('next lint')]
