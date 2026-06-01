@@ -55,28 +55,24 @@ export const configSchema = z.object({
 
   injectCommandBefore: z
     .string()
-    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
     .optional()
     .describe(
       'If specified, this command will be injected before the user command. This can be used to set up the environment or perform any necessary preparations before the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
     ),
   injectCommandBeforeComment: z
     .string()
-    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
     .optional()
     .describe(
       'A comment to be added before the injected command. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
     ),
   injectCommandAfter: z
     .string()
-    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
     .optional()
     .describe(
       'If specified, this command will be injected after the user command. This can be used to perform any necessary cleanup or additional operations after the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
     ),
   injectCommandAfterComment: z
     .string()
-    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
     .optional()
     .describe(
       'A comment to be added after the injected command. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
@@ -163,24 +159,32 @@ export async function resolveConfig(workdir: string) {
       opencodeConfig.injectCommandBefore,
       projectConfig.injectCommandBefore,
       globalConfig.injectCommandBefore
-    ),
+    )
+      ?.trim()
+      .replaceAll(/\n/g, ';'),
 
     injectCommandBeforeComment: pickFirst(
       opencodeConfig.injectCommandBeforeComment,
       projectConfig.injectCommandBeforeComment,
       globalConfig.injectCommandBeforeComment
-    ),
+    )
+      ?.trim()
+      .replaceAll(/\n/g, ';'),
 
     injectCommandAfter: pickFirst(
       opencodeConfig.injectCommandAfter,
       projectConfig.injectCommandAfter,
       globalConfig.injectCommandAfter
-    ),
+    )
+      ?.trim()
+      .replaceAll(/\n/g, ';'),
 
     injectCommandAfterComment: pickFirst(
       opencodeConfig.injectCommandAfterComment,
       projectConfig.injectCommandAfterComment,
       globalConfig.injectCommandAfterComment
-    ),
+    )
+      ?.trim()
+      .replaceAll(/\n/g, ';'),
   }
 }
