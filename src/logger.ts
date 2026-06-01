@@ -1,9 +1,10 @@
 import consola from 'consola'
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 
 function createStream() {
-  const logDir = path.resolve(process.cwd(), '.log')
+  const logDir = path.resolve(os.homedir(), './.opencode-armor/logs')
   const logFile = path.join(logDir, Date.now().toString() + '.log')
 
   if (!fs.existsSync(logDir)) {

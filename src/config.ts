@@ -84,9 +84,9 @@ async function readConfigFile(
 ): Promise<z.infer<typeof configSchema>> {
   try {
     const data = await fs.readFile(input, 'utf-8')
-    return configSchema.parseAsync(JSON.parse(data))
+    return await configSchema.parseAsync(JSON.parse(data))
   } catch {
-    return configSchema.parseAsync({})
+    return await configSchema.parseAsync({})
   }
 }
 
@@ -108,10 +108,11 @@ export async function resolveConfig(workdir: string) {
 
   return {
     priority:
-      opencodeConfig.priority ??
-      projectConfig.priority ??
-      globalConfig.priority ??
-      'whitelist',
+      pickFirst(
+        opencodeConfig.priority,
+        projectConfig.priority,
+        globalConfig.priority
+      ) ?? 'whitelist',
 
     blacklist: [
       ...(opencodeConfig.blacklist ?? []),
@@ -161,7 +162,7 @@ export async function resolveConfig(workdir: string) {
       globalConfig.injectCommandBefore
     )
       ?.trim()
-      .replaceAll(/\n/g, ';'),
+      ?.replaceAll(/\n/g, ';'),
 
     injectCommandBeforeComment: pickFirst(
       opencodeConfig.injectCommandBeforeComment,
@@ -169,7 +170,7 @@ export async function resolveConfig(workdir: string) {
       globalConfig.injectCommandBeforeComment
     )
       ?.trim()
-      .replaceAll(/\n/g, ';'),
+      ?.replaceAll(/\n/g, ';'),
 
     injectCommandAfter: pickFirst(
       opencodeConfig.injectCommandAfter,
@@ -177,7 +178,7 @@ export async function resolveConfig(workdir: string) {
       globalConfig.injectCommandAfter
     )
       ?.trim()
-      .replaceAll(/\n/g, ';'),
+      ?.replaceAll(/\n/g, ';'),
 
     injectCommandAfterComment: pickFirst(
       opencodeConfig.injectCommandAfterComment,
@@ -185,6 +186,6 @@ export async function resolveConfig(workdir: string) {
       globalConfig.injectCommandAfterComment
     )
       ?.trim()
-      .replaceAll(/\n/g, ';'),
+      ?.replaceAll(/\n/g, ';'),
   }
 }
