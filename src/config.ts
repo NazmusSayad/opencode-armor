@@ -46,30 +46,6 @@ export async function resolveConfig(workdir: string) {
     readConfigFile(OPENCODE_CONFIG_PATH),
   ])
 
-  const ignoreDefaultBlacklist =
-    opencodeConfig.ignoreDefaultBlacklist ??
-    projectConfig.ignoreDefaultBlacklist ??
-    globalConfig.ignoreDefaultBlacklist ??
-    false
-
-  const ignoreDefaultWhitelist =
-    opencodeConfig.ignoreDefaultWhitelist ??
-    projectConfig.ignoreDefaultWhitelist ??
-    globalConfig.ignoreDefaultWhitelist ??
-    false
-
-  const ignoreGlobalBlacklist =
-    opencodeConfig.ignoreGlobalBlacklist ??
-    projectConfig.ignoreGlobalBlacklist ??
-    globalConfig.ignoreGlobalBlacklist ??
-    false
-
-  const ignoreGlobalWhitelist =
-    opencodeConfig.ignoreGlobalWhitelist ??
-    projectConfig.ignoreGlobalWhitelist ??
-    globalConfig.ignoreGlobalWhitelist ??
-    false
-
   return {
     priority:
       opencodeConfig.priority ??
@@ -80,15 +56,35 @@ export async function resolveConfig(workdir: string) {
     blacklist: [
       ...(opencodeConfig.blacklist ?? []),
       ...(projectConfig.blacklist ?? []),
-      ...(ignoreGlobalBlacklist ? [] : (globalConfig.blacklist ?? [])),
-      ...(ignoreDefaultBlacklist ? [] : BLOCKED_PATTERNS),
+
+      ...((opencodeConfig.ignoreGlobalBlacklist ??
+      projectConfig.ignoreGlobalBlacklist ??
+      globalConfig.ignoreGlobalBlacklist)
+        ? []
+        : (globalConfig.blacklist ?? [])),
+
+      ...((opencodeConfig.ignoreDefaultBlacklist ??
+      projectConfig.ignoreDefaultBlacklist ??
+      globalConfig.ignoreDefaultBlacklist)
+        ? []
+        : BLOCKED_PATTERNS),
     ],
 
     whitelist: [
       ...(opencodeConfig.whitelist ?? []),
       ...(projectConfig.whitelist ?? []),
-      ...(ignoreGlobalWhitelist ? [] : (globalConfig.whitelist ?? [])),
-      ...(ignoreDefaultWhitelist ? [] : ALLOWED_PATTERNS),
+
+      ...((opencodeConfig.ignoreGlobalWhitelist ??
+      projectConfig.ignoreGlobalWhitelist ??
+      globalConfig.ignoreGlobalWhitelist)
+        ? []
+        : (globalConfig.whitelist ?? [])),
+
+      ...((opencodeConfig.ignoreDefaultWhitelist ??
+      projectConfig.ignoreDefaultWhitelist ??
+      globalConfig.ignoreDefaultWhitelist)
+        ? []
+        : ALLOWED_PATTERNS),
     ],
 
     injectCommandBefore:
