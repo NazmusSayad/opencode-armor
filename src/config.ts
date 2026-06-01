@@ -3,20 +3,84 @@ import os from 'os'
 import path from 'path'
 import z from 'zod'
 import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './patterns.js'
+import { pickFirst } from './utils.js'
 
 export const configSchema = z.object({
-  priority: z.enum(['blacklist', 'whitelist']).optional(),
-  blacklist: z.array(z.string()).optional(),
-  whitelist: z.array(z.string()).optional(),
+  priority: z
+    .enum(['blacklist', 'whitelist'])
+    .optional()
+    .describe(
+      'Determines whether the blacklist or whitelist takes precedence. If set to "blacklist", the blacklist will be checked first, and if a command matches an entry in the blacklist, it will be blocked regardless of the whitelist. If set to "whitelist", the whitelist will be checked first, and only commands that match an entry in the whitelist will be allowed, regardless of the blacklist.'
+    ),
 
-  ignoreDefaultBlacklist: z.boolean().optional(),
-  ignoreDefaultWhitelist: z.boolean().optional(),
+  blacklist: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'An array of command patterns that are blocked. If a command matches any of the patterns in this list, it will be blocked from execution.'
+    ),
 
-  ignoreGlobalBlacklist: z.boolean().optional(),
-  ignoreGlobalWhitelist: z.boolean().optional(),
+  whitelist: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'An array of command patterns that are allowed. If a command matches any of the patterns in this list, it will be allowed to execute.'
+    ),
 
-  injectCommandBefore: z.string().optional(),
-  injectCommandAfter: z.string().optional(),
+  ignoreDefaultBlacklist: z
+    .boolean()
+    .optional()
+    .describe(
+      'If set to true, the default blacklist patterns will be ignored. This means that only the patterns specified in the "blacklist" array will be considered for blocking commands.'
+    ),
+  ignoreDefaultWhitelist: z
+    .boolean()
+    .optional()
+    .describe(
+      'If set to true, the default whitelist patterns will be ignored. This means that only the patterns specified in the "whitelist" array will be considered for allowing commands.'
+    ),
+
+  ignoreGlobalBlacklist: z
+    .boolean()
+    .optional()
+    .describe(
+      'If set to true, the global blacklist patterns will be ignored. This means that only the patterns specified in the "blacklist" array will be considered for blocking commands.'
+    ),
+  ignoreGlobalWhitelist: z
+    .boolean()
+    .optional()
+    .describe(
+      'If set to true, the global whitelist patterns will be ignored. This means that only the patterns specified in the "whitelist" array will be considered for allowing commands.'
+    ),
+
+  injectCommandBefore: z
+    .string()
+    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
+    .optional()
+    .describe(
+      'If specified, this command will be injected before the user command. This can be used to set up the environment or perform any necessary preparations before the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+    ),
+  injectCommandBeforeComment: z
+    .string()
+    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
+    .optional()
+    .describe(
+      'A comment to be added before the injected command. NOTE: This should not contain new lines, as it will be injected as a single line before the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+    ),
+  injectCommandAfter: z
+    .string()
+    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
+    .optional()
+    .describe(
+      'If specified, this command will be injected after the user command. This can be used to perform any necessary cleanup or additional operations after the main command is executed. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+    ),
+  injectCommandAfterComment: z
+    .string()
+    .transform((str) => str.trim().replaceAll(/\n/g, ';'))
+    .optional()
+    .describe(
+      'A comment to be added after the injected command. NOTE: This should not contain new lines, as it will be injected as a single line after the user command. New lines will be replaced with semicolons to ensure it is injected as a single line.'
+    ),
 })
 
 async function readConfigFile(
@@ -57,15 +121,19 @@ export async function resolveConfig(workdir: string) {
       ...(opencodeConfig.blacklist ?? []),
       ...(projectConfig.blacklist ?? []),
 
-      ...((opencodeConfig.ignoreGlobalBlacklist ??
-      projectConfig.ignoreGlobalBlacklist ??
-      globalConfig.ignoreGlobalBlacklist)
+      ...(pickFirst(
+        opencodeConfig.ignoreGlobalBlacklist,
+        projectConfig.ignoreGlobalBlacklist,
+        globalConfig.ignoreGlobalBlacklist
+      )
         ? []
         : (globalConfig.blacklist ?? [])),
 
-      ...((opencodeConfig.ignoreDefaultBlacklist ??
-      projectConfig.ignoreDefaultBlacklist ??
-      globalConfig.ignoreDefaultBlacklist)
+      ...(pickFirst(
+        opencodeConfig.ignoreDefaultBlacklist,
+        projectConfig.ignoreDefaultBlacklist,
+        globalConfig.ignoreDefaultBlacklist
+      )
         ? []
         : BLOCKED_PATTERNS),
     ],
@@ -74,27 +142,45 @@ export async function resolveConfig(workdir: string) {
       ...(opencodeConfig.whitelist ?? []),
       ...(projectConfig.whitelist ?? []),
 
-      ...((opencodeConfig.ignoreGlobalWhitelist ??
-      projectConfig.ignoreGlobalWhitelist ??
-      globalConfig.ignoreGlobalWhitelist)
+      ...(pickFirst(
+        opencodeConfig.ignoreGlobalWhitelist,
+        projectConfig.ignoreGlobalWhitelist,
+        globalConfig.ignoreGlobalWhitelist
+      )
         ? []
         : (globalConfig.whitelist ?? [])),
 
-      ...((opencodeConfig.ignoreDefaultWhitelist ??
-      projectConfig.ignoreDefaultWhitelist ??
-      globalConfig.ignoreDefaultWhitelist)
+      ...(pickFirst(
+        opencodeConfig.ignoreDefaultWhitelist,
+        projectConfig.ignoreDefaultWhitelist,
+        globalConfig.ignoreDefaultWhitelist
+      )
         ? []
         : ALLOWED_PATTERNS),
     ],
 
-    injectCommandBefore:
-      opencodeConfig.injectCommandBefore ??
-      projectConfig.injectCommandBefore ??
-      globalConfig.injectCommandBefore,
+    injectCommandBefore: pickFirst(
+      opencodeConfig.injectCommandBefore,
+      projectConfig.injectCommandBefore,
+      globalConfig.injectCommandBefore
+    ),
 
-    injectCommandAfter:
-      opencodeConfig.injectCommandAfter ??
-      projectConfig.injectCommandAfter ??
-      globalConfig.injectCommandAfter,
+    injectCommandBeforeComment: pickFirst(
+      opencodeConfig.injectCommandBeforeComment,
+      projectConfig.injectCommandBeforeComment,
+      globalConfig.injectCommandBeforeComment
+    ),
+
+    injectCommandAfter: pickFirst(
+      opencodeConfig.injectCommandAfter,
+      projectConfig.injectCommandAfter,
+      globalConfig.injectCommandAfter
+    ),
+
+    injectCommandAfterComment: pickFirst(
+      opencodeConfig.injectCommandAfterComment,
+      projectConfig.injectCommandAfterComment,
+      globalConfig.injectCommandAfterComment
+    ),
   }
 }

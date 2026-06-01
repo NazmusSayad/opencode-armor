@@ -2,6 +2,7 @@ import { Plugin } from '@opencode-ai/plugin'
 import { resolveConfig } from './config.js'
 import { logger } from './logger.js'
 import { patternMatcher } from './matcher.js'
+import { generateCommandWithComment } from './utils.js'
 
 logger.info('OpenCode Armor plugin loading...')
 
@@ -29,8 +30,9 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
           throw new Error(
             [
               `Command usage restricted: "${command}".`,
-              `You should NOT run this command. DO NOT TRY TO BYPASS THIS RESTRICTION!`,
-              `Instead ask the user to run "${command}" or continue your other tasks.`,
+              `DO NOT TRY or CHEAT TO BYPASS THIS RESTRICTION!`,
+              `Instead guide the user to run the command after finishing other tasks.`,
+              `If other tasks are blocked because of this commands then stop and ask the user to run the command.`,
             ].join('\n')
           )
         }
@@ -40,39 +42,29 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
         )
 
         if (config.injectCommandBefore) {
-          if (!command.trim().startsWith(config.injectCommandBefore)) {
-            output.args.command = `${config.injectCommandBefore};\n${command}`
-            logger.info(
-              `Injecting command before: "${config.injectCommandBefore}". New command: "${output.args.command}".`
-            )
+          const injectedString = generateCommandWithComment(
+            config.injectCommandBefore + ';',
+            config.injectCommandBeforeComment
+          )
+
+          if (!command.trim().startsWith(injectedString)) {
+            output.args.command = `${injectedString}\n${command}`
+            logger.info(`Injecting "${injectedString}" before command.`)
           }
         }
 
         if (config.injectCommandAfter) {
-          if (!command.trim().endsWith(config.injectCommandAfter)) {
-            output.args.command = `${output.args.command};\n${config.injectCommandAfter}`
-            logger.info(
-              `Injecting command after: "${config.injectCommandAfter}". New command: "${output.args.command}".`
-            )
+          const injectedString = generateCommandWithComment(
+            config.injectCommandAfter + ';',
+            config.injectCommandAfterComment
+          )
+
+          if (!command.trim().endsWith(injectedString)) {
+            output.args.command = `${command}\n${injectedString}`
+            logger.info(`Injecting "${injectedString}" after command.`)
           }
         }
       }
     },
   }
 }
-
-// export const ShellInjectPlugin: Plugin = async (ctx) => {
-//   return {
-//     'tool.execute.before': async (input, output) => {
-//       const isShell =
-//         input.tool === 'bash' && typeof output?.args?.command === 'string'
-
-//       if (isShell) {
-//         output.args.command = [
-//           'source ~/.bashrc; # Ignore: Injected via Plugin',
-//           output.args.command,
-//         ].join('\n\n')
-//       }
-//     },
-//   }
-// }
