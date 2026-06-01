@@ -1,6 +1,6 @@
 {
   "name": "opencode-armor",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -10,10 +10,11 @@
     "json": "tsx ./src/json-schema.ts",
     "oc:dev": "cross-env OPENCODE_ARMOR_DEV_MODE=true tsdown --config ./tsdown.config.ts --watch",
     "dev": "tsdown --config ./tsdown.config.ts --watch",
-    "build": "tsdown --config ./tsdown.config.ts --dev"
+    "build": "tsdown --config ./tsdown.config.ts"
   },
   "type": "module",
   "main": "./dist/index.js",
+  "dependencies": {},
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
@@ -38,9 +39,7 @@
     "tsx": "^4.22.3",
     "typescript": "5",
     "typescript-eslint": "^8.46.2",
-    "vitest": "^4.1.5"
-  },
-  "dependencies": {
+    "vitest": "^4.1.5",
     "consola": "^3.4.2",
     "zod": "^4.4.3"
   }

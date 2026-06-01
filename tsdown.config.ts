@@ -8,10 +8,11 @@ export default defineConfig({
     index: './src/index.ts',
   },
 
+  clean: true,
+  minify: true,
   outDir: isDev ? './.opencode/plugins/' : './dist',
 
   target: 'ES6',
-  minify: 'dce-only',
   tsconfig: './tsconfig.json',
 
   external: [/node:/gim, ...getExternal((packageJSON as any).dependencies)],

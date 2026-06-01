@@ -16,7 +16,7 @@ function createStream() {
 }
 
 export const logger = consola.create(
-  process.env.OPENCODE_ARMOR_DEV_MODE === 'true'
+  process.env.OPENCODE_ARMOR_ENABLE_LOG === 'true'
     ? { stdout: createStream() }
     : { level: -1 }
 )
