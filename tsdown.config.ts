@@ -4,6 +4,7 @@ import packageJSON from './package.json' with { type: 'json' }
 const isDev = process.env.OPENCODE_ARMOR_DEV_MODE === 'true'
 
 export default defineConfig({
+  name: packageJSON.name,
   entry: {
     index: './src/index.ts',
   },
@@ -15,7 +16,14 @@ export default defineConfig({
   target: 'ES6',
   tsconfig: './tsconfig.json',
 
-  external: [/node:/gim, ...getExternal((packageJSON as any).dependencies)],
+  deps: {
+    neverBundle: [
+      /node:/gim,
+      ...getExternal((packageJSON as any).dependencies),
+    ],
+  },
+
+  logLevel: 'warn',
 })
 
 function getExternal(dependencies: unknown) {
