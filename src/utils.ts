@@ -1,3 +1,5 @@
+import { packageJSON } from './package.js'
+
 export function isCmdEqual(cmd: string, pattern: string): boolean {
   return (
     cmd === pattern ||
@@ -40,7 +42,7 @@ export function generateCommandWithComment(
 ): string {
   const commentString =
     comment == null
-      ? `# [IGNORE] Injected by opencode-armor`
+      ? `# [IGNORE] Injected by ${packageJSON.name}`
       : comment && `# ${comment}`
 
   return `${command} ${commentString}`.trim()

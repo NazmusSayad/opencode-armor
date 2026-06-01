@@ -2,26 +2,27 @@ import { Plugin } from '@opencode-ai/plugin'
 import { resolveConfig } from './config.js'
 import { logger } from './logger.js'
 import { patternMatcher } from './matcher.js'
+import { packageJSON } from './package.js'
 import { generateCommandWithComment } from './utils.js'
 
-logger.info('OpenCode Armor plugin loading...')
+logger.info(`${packageJSON.name}@${packageJSON.version} initializing...`)
 
 // eslint-disable-next-line func-style
 export const OpenCodeArmor: Plugin = async (pluginInput) => {
+  const workdir = pluginInput.worktree ?? pluginInput.project.worktree
+  const config = await resolveConfig(workdir)
+
+  console.log(
+    `${packageJSON.name} initialized with config: ${JSON.stringify(config)}`
+  )
+
   return {
     'tool.execute.before': async (input, output) => {
       if (input.tool === 'bash') {
         const command: string = output.args.command ?? ''
         if (command.trim() === '') return
 
-        const workdir =
-          output.args?.workdir ??
-          pluginInput.worktree ??
-          pluginInput.project.worktree
-
         logger.info(`Checking command: "${command}" in workdir: "${workdir}"`)
-
-        const config = await resolveConfig(workdir)
         const blockedPattern = await patternMatcher(command, config)
 
         if (blockedPattern !== null) {
