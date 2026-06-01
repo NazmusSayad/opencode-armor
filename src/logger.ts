@@ -20,7 +20,7 @@ function createStream() {
   return stream as unknown as NodeJS.WriteStream
 }
 
-export const logger = consola.create(
+export const console = consola.create(
   process.env.OPENCODE_ARMOR_ENABLE_LOG === 'true'
     ? { stdout: createStream() }
     : { level: -1 }

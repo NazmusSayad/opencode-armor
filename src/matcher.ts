@@ -1,5 +1,5 @@
 import { PatternConfig } from './config.js'
-import { logger } from './logger.js'
+import { console } from './logger.js'
 import { isCmdEqual } from './utils.js'
 
 const SPLIT_REGEX = /;|&|&&|(\|)|(\|\|)/gm
@@ -22,12 +22,12 @@ export async function patternMatcher(
       for (let j = 0; j < commands.length; j++) {
         const cmd = commands[j]
         const blocked = isCmdEqual(cmd, ptn)
-        logger.debug(`"${cmd}" is blocked by pattern "${ptn}": ${blocked}`)
+        console.debug(`"${cmd}" is blocked by pattern "${ptn}": ${blocked}`)
 
         if (blocked) {
           const allowed = config.whitelist.some((p) => isCmdEqual(cmd, p))
           if (!allowed) {
-            logger.debug(
+            console.debug(
               `"${cmd}" is blocked by pattern "${ptn}" and not allowed by whitelist.`
             )
 
@@ -47,12 +47,12 @@ export async function patternMatcher(
       for (let j = 0; j < commands.length; j++) {
         const cmd = commands[j]
         const allowed = isCmdEqual(cmd, ptn)
-        logger.debug(`"${cmd}" is allowed by pattern "${ptn}": ${allowed}`)
+        console.debug(`"${cmd}" is allowed by pattern "${ptn}": ${allowed}`)
 
         if (allowed) {
           const blocked = config.blacklist.find((p) => isCmdEqual(cmd, p))
           if (blocked) {
-            logger.debug(
+            console.debug(
               `"${cmd}" is allowed by pattern "${ptn}" but blocked by pattern "${blocked}".`
             )
 
