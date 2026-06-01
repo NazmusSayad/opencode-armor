@@ -18,8 +18,8 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
     'tool.execute.before': async (input, output) => {
       if (input.tool === 'bash') {
         logger.info(`Received command for execution: "${output.args.command}"`)
-        console.log('Plugin WorkTree:', pluginInput.worktree)
-        console.log('Plugin Project WorkTree:', pluginInput.project.worktree)
+        logger.info('Plugin WorkTree:', pluginInput.worktree)
+        logger.info('Project WorkTree:', pluginInput.project.worktree)
 
         const command: string = output.args.command ?? ''
         if (command.trim() === '') return
