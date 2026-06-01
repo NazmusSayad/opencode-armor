@@ -1,6 +1,6 @@
 {
   "name": "opencode-armor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -8,7 +8,6 @@
     "fix": "eslint . --fix",
     "tc": "tsc --noEmit --watch",
     "json": "tsx ./src/json-schema.ts",
-    "oc:dev": "cross-env OPENCODE_ARMOR_DEV_MODE=true tsdown --config ./tsdown.config.ts --watch",
     "dev": "tsdown --config ./tsdown.config.ts --watch",
     "build": "tsdown --config ./tsdown.config.ts"
   },

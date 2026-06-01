@@ -12,13 +12,15 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
   const workdir = pluginInput.worktree ?? pluginInput.project.worktree
   const config = await resolveConfig(workdir)
 
-  logger.info(
-    `${packageJSON.name} initialized with config: ${JSON.stringify(config)}`
-  )
+  logger.info(`${workdir} initialized with config: ${JSON.stringify(config)}`)
 
   return {
     'tool.execute.before': async (input, output) => {
       if (input.tool === 'bash') {
+        logger.info(`Received command for execution: "${output.args.command}"`)
+        console.log('Plugin WorkTree:', pluginInput.worktree)
+        console.log('Plugin Project WorkTree:', pluginInput.project.worktree)
+
         const command: string = output.args.command ?? ''
         if (command.trim() === '') return
 

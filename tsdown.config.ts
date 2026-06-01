@@ -1,8 +1,6 @@
 import { defineConfig } from 'tsdown'
 import packageJSON from './package.json' with { type: 'json' }
 
-const isDev = process.env.OPENCODE_ARMOR_DEV_MODE === 'true'
-
 export default defineConfig({
   name: packageJSON.name,
   entry: {
@@ -11,7 +9,7 @@ export default defineConfig({
 
   clean: true,
   minify: true,
-  outDir: isDev ? './.opencode/plugins/' : './dist',
+  outDir: './dist',
 
   target: 'ES6',
   tsconfig: './tsconfig.json',
