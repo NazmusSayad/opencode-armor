@@ -14,6 +14,9 @@ export const configSchema = z.object({
 
   ignoreGlobalBlacklist: z.boolean().optional(),
   ignoreGlobalWhitelist: z.boolean().optional(),
+
+  injectCommandBefore: z.string().optional(),
+  injectCommandAfter: z.string().optional(),
 })
 
 async function readConfigFile(
@@ -68,18 +71,34 @@ export async function resolveConfig(workdir: string) {
     false
 
   return {
-    priority: projectConfig.priority ?? globalConfig.priority ?? 'whitelist',
+    priority:
+      opencodeConfig.priority ??
+      projectConfig.priority ??
+      globalConfig.priority ??
+      'whitelist',
+
     blacklist: [
-      ...(ignoreDefaultBlacklist ? [] : BLOCKED_PATTERNS),
-      ...(ignoreGlobalBlacklist ? [] : (globalConfig.blacklist ?? [])),
-      ...(projectConfig.blacklist ?? []),
       ...(opencodeConfig.blacklist ?? []),
+      ...(projectConfig.blacklist ?? []),
+      ...(ignoreGlobalBlacklist ? [] : (globalConfig.blacklist ?? [])),
+      ...(ignoreDefaultBlacklist ? [] : BLOCKED_PATTERNS),
     ],
+
     whitelist: [
-      ...(ignoreDefaultWhitelist ? [] : ALLOWED_PATTERNS),
-      ...(ignoreGlobalWhitelist ? [] : (globalConfig.whitelist ?? [])),
-      ...(projectConfig.whitelist ?? []),
       ...(opencodeConfig.whitelist ?? []),
+      ...(projectConfig.whitelist ?? []),
+      ...(ignoreGlobalWhitelist ? [] : (globalConfig.whitelist ?? [])),
+      ...(ignoreDefaultWhitelist ? [] : ALLOWED_PATTERNS),
     ],
+
+    injectCommandBefore:
+      opencodeConfig.injectCommandBefore ??
+      projectConfig.injectCommandBefore ??
+      globalConfig.injectCommandBefore,
+
+    injectCommandAfter:
+      opencodeConfig.injectCommandAfter ??
+      projectConfig.injectCommandAfter ??
+      globalConfig.injectCommandAfter,
   }
 }
