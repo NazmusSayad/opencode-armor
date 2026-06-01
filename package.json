@@ -1,6 +1,6 @@
 {
   "name": "opencode-armor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
