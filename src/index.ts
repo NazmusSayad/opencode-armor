@@ -12,7 +12,7 @@ export const OpenCodeArmor: Plugin = async (pluginInput) => {
   const workdir = pluginInput.worktree ?? pluginInput.project.worktree
   const config = await resolveConfig(workdir)
 
-  console.log(
+  logger.info(
     `${packageJSON.name} initialized with config: ${JSON.stringify(config)}`
   )
 
