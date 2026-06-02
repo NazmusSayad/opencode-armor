@@ -1,6 +1,6 @@
 {
   "name": "opencode-armor",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -25,6 +25,7 @@
     "consola": "^3.4.2",
     "cross-env": "^10.1.0",
     "daily-code": "^1.1.16",
+    "dotenv": "^17.4.2",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-check-file": "^3.3.0",

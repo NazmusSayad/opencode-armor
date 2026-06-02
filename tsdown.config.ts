@@ -20,8 +20,6 @@ export default defineConfig({
       ...getExternal((packageJSON as any).dependencies),
     ],
   },
-
-  logLevel: 'warn',
 })
 
 function getExternal(dependencies: unknown) {

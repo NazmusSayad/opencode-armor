@@ -1,6 +1,7 @@
 import { Plugin } from '@opencode-ai/plugin'
 import { resolveConfig } from './config.js'
 import { BLOCKED_MESSAGE } from './constants.js'
+import { readDotenvFiles } from './dotenv.js'
 import { console } from './logger.js'
 import { patternMatcher } from './matcher.js'
 import { packageJSON } from './package.js'
@@ -9,13 +10,28 @@ import { generateCommandWithComment } from './utils.js'
 console.info(`${packageJSON.name}@${packageJSON.version} init!`)
 
 // eslint-disable-next-line func-style
-export const OpenCodeArmor: Plugin = async (pluginInput) => {
-  const config = await resolveConfig(pluginInput.directory)
-  console.info(
-    `Config for "${pluginInput.directory}": ${JSON.stringify(config)}`
-  )
+export const OpenCodeArmor: Plugin = async ({ directory }) => {
+  const config = await resolveConfig(directory)
+  console.info(`Config for "${directory}": ${JSON.stringify(config)}`)
+
+  const projectEnvVars = await readDotenvFiles(directory, config.dotenvFiles)
+  console.info(`Project Environment vars: ${JSON.stringify(projectEnvVars)}`)
 
   return {
+    'shell.env': async (input, output) => {
+      let resolvedVars = { ...projectEnvVars }
+
+      if (!config.ignoreCwdDotenvFiles && input.cwd !== directory) {
+        const cwdEnvVars = await readDotenvFiles(input.cwd, config.dotenvFiles)
+        console.info(`CWD Environment vars: ${JSON.stringify(cwdEnvVars)}`)
+
+        resolvedVars = { ...resolvedVars, ...cwdEnvVars }
+      }
+
+      console.info(`Injected Environment vars: ${JSON.stringify(resolvedVars)}`)
+      Object.assign(output.env, resolvedVars)
+    },
+
     'tool.execute.before': async (input, output) => {
       if (input.tool === 'bash') {
         console.info(`Received command for execution: "${output.args.command}"`)

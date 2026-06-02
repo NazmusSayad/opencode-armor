@@ -48,6 +48,23 @@ export const configSchema = z.object({
     .optional()
     .describe('Ignore the global whitelist patterns.'),
 
+  useDotenvFiles: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'List of .env files to inject. Files are loaded in order, and variables are injected before the command runs.'
+    ),
+
+  ignoreCwdDotenvFiles: z
+    .boolean()
+    .optional()
+    .describe('Ignore .env files in the current working directory.'),
+
+  ignoreGlobalDotenvFiles: z
+    .boolean()
+    .optional()
+    .describe('Ignore the global list of .env files to inject.'),
+
   injectCommandBefore: z
     .string()
     .optional()
@@ -155,6 +172,25 @@ export async function resolveConfig(workdir: string) {
       projectConfig.blockedMessage,
       globalConfig.blockedMessage
     )?.trim(),
+
+    dotenvFiles: [
+      ...(pickFirst(
+        opencodeConfig.ignoreGlobalDotenvFiles,
+        projectConfig.ignoreGlobalDotenvFiles,
+        globalConfig.ignoreGlobalDotenvFiles
+      )
+        ? []
+        : (globalConfig.useDotenvFiles ?? [])),
+      ...(opencodeConfig.useDotenvFiles ?? []),
+      ...(projectConfig.useDotenvFiles ?? []),
+    ],
+
+    ignoreCwdDotenvFiles:
+      pickFirst(
+        opencodeConfig.ignoreCwdDotenvFiles,
+        projectConfig.ignoreCwdDotenvFiles,
+        globalConfig.ignoreCwdDotenvFiles
+      ) ?? false,
 
     injectCommandBefore: pickFirst(
       opencodeConfig.injectCommandBefore,
