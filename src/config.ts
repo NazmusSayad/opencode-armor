@@ -48,11 +48,11 @@ export const configSchema = z.object({
     .optional()
     .describe('Ignore the global whitelist patterns.'),
 
-  useDotenvFiles: z
+  injectDotenvFiles: z
     .array(z.string())
     .optional()
     .describe(
-      'List of .env files to inject. Files are loaded in order, and variables are injected before the command runs.'
+      'List of dotenv files to inject. Files are loaded in order, and variables are injected before the command runs.'
     ),
 
   ignoreCwdDotenvFiles: z
@@ -180,9 +180,9 @@ export async function resolveConfig(workdir: string) {
         globalConfig.ignoreGlobalDotenvFiles
       )
         ? []
-        : (globalConfig.useDotenvFiles ?? [])),
-      ...(opencodeConfig.useDotenvFiles ?? []),
-      ...(projectConfig.useDotenvFiles ?? []),
+        : (globalConfig.injectDotenvFiles ?? [])),
+      ...(opencodeConfig.injectDotenvFiles ?? []),
+      ...(projectConfig.injectDotenvFiles ?? []),
     ],
 
     ignoreCwdDotenvFiles:
