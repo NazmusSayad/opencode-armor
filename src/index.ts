@@ -19,6 +19,9 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
 
   return {
     'shell.env': async (input, output) => {
+      console.log(`Injecting Environment vars for project "${directory}".`)
+      console.log(`Injecting Environment vars for cwd "${input.cwd}".`)
+
       let resolvedVars = { ...projectEnvVars }
 
       if (!config.ignoreCwdDotenvFiles && input.cwd !== directory) {
