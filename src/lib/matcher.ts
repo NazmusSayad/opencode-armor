@@ -1,4 +1,4 @@
-import { console } from './logger.js'
+import { logger } from './logger.js'
 
 const SPLITTERS = [';', '&', '&&', '|', '||', '<', '>', '<<', '>>'] as const
 const SPLIT_REGEX = new RegExp(
@@ -33,12 +33,12 @@ export async function patternMatcher({
       for (let j = 0; j < commands.length; j++) {
         const cmd = commands[j]
         const blocked = isCmdEqual(cmd, ptn)
-        console.debug(`"${cmd}" is blocked by pattern "${ptn}": ${blocked}`)
+        logger.debug(`"${cmd}" is blocked by pattern "${ptn}": ${blocked}`)
 
         if (blocked) {
           const allowed = whitelist.some((p) => isCmdEqual(cmd, p))
           if (!allowed) {
-            console.debug(
+            logger.debug(
               `"${cmd}" is blocked by pattern "${ptn}" and not allowed by whitelist.`
             )
 
@@ -58,12 +58,12 @@ export async function patternMatcher({
       for (let j = 0; j < commands.length; j++) {
         const cmd = commands[j]
         const allowed = isCmdEqual(cmd, ptn)
-        console.debug(`"${cmd}" is allowed by pattern "${ptn}": ${allowed}`)
+        logger.debug(`"${cmd}" is allowed by pattern "${ptn}": ${allowed}`)
 
         if (allowed) {
           const blocked = blacklist.find((p) => isCmdEqual(cmd, p))
           if (blocked) {
-            console.debug(
+            logger.debug(
               `"${cmd}" is allowed by pattern "${ptn}" but blocked by pattern "${blocked}".`
             )
 

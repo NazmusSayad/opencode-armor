@@ -4,8 +4,6 @@ import os from 'os'
 import path from 'path'
 import { packageJSON } from '../package.js'
 
-process.env.OPENCODE_ARMOR_ENABLE_LOG = 'true'
-
 function createStream() {
   const logDir = path.resolve(os.tmpdir(), `./.${packageJSON.name}-logs`)
   const logFilename = `${packageJSON.version}@${Date.now().toString()}.log`
@@ -19,7 +17,7 @@ function createStream() {
   return stream as unknown as NodeJS.WriteStream
 }
 
-export const console = consola.create(
+export const logger = consola.create(
   process.env.OPENCODE_ARMOR_ENABLE_LOG === 'true'
     ? { stdout: createStream() }
     : { level: -1 }

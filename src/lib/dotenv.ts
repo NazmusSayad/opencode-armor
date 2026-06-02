@@ -3,7 +3,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import util from 'util'
-import { console } from './logger.js'
+import { logger } from './logger.js'
 
 export async function readDotenvFiles(cwd: string, files: string[]) {
   let envVars: Record<string, string> = {}
@@ -14,7 +14,7 @@ export async function readDotenvFiles(cwd: string, files: string[]) {
       const content = fs.readFileSync(resolvedPath, 'utf-8')
       const env = objectOmitNullish(util.parseEnv(content))
 
-      console.info(
+      logger.info(
         `Loaded environment variables from "${resolvedPath}": ${JSON.stringify(env)}`
       )
 
@@ -23,7 +23,7 @@ export async function readDotenvFiles(cwd: string, files: string[]) {
         ...env,
       }
     } catch {
-      console.warn(`No .env file found at "${file}". Skipping.`)
+      logger.warn(`No .env file found at "${file}". Skipping.`)
     }
   }
 
