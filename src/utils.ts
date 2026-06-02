@@ -47,3 +47,7 @@ export function generateCommandWithComment(
 
   return `${command} ${commentString}`.trim()
 }
+
+export function uniqueArrayOfStrings<T>(array: T[]): T[] {
+  return [...new Set(array)]
+}

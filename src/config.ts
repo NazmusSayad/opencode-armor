@@ -1,9 +1,10 @@
+import {} from 'daily-code'
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 import z from 'zod'
 import { ALLOWED_PATTERNS, BLOCKED_PATTERNS } from './constants.js'
-import { pickFirst } from './utils.js'
+import { pickFirst, uniqueArrayOfStrings } from './utils.js'
 
 export const configSchema = z.object({
   priority: z
@@ -173,7 +174,7 @@ export async function resolveConfig(workdir: string) {
       globalConfig.blockedMessage
     )?.trim(),
 
-    dotenvFiles: [
+    dotenvFiles: uniqueArrayOfStrings([
       ...(pickFirst(
         opencodeConfig.ignoreGlobalDotenvFiles,
         projectConfig.ignoreGlobalDotenvFiles,
@@ -181,9 +182,9 @@ export async function resolveConfig(workdir: string) {
       )
         ? []
         : (globalConfig.injectDotenvFiles ?? [])),
-      ...(opencodeConfig.injectDotenvFiles ?? []),
       ...(projectConfig.injectDotenvFiles ?? []),
-    ],
+      ...(opencodeConfig.injectDotenvFiles ?? []),
+    ]),
 
     ignoreCwdDotenvFiles:
       pickFirst(
