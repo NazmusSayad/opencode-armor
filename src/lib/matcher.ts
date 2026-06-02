@@ -1,7 +1,10 @@
 import { console } from './logger.js'
-import { isCmdEqual } from './utils.js'
 
-const SPLIT_REGEX = /;|&|&&|(\|)|(\|\|)/gm
+const SPLITTERS = [';', '&', '&&', '|', '||', '<', '>', '<<', '>>'] as const
+const SPLIT_REGEX = new RegExp(
+  SPLITTERS.map((s) => `(\\${s.split('').join('\\')})`).join('|'),
+  'gm'
+)
 
 type PatternMatcherInput = {
   command: string
@@ -76,4 +79,23 @@ export async function patternMatcher({
   throw new Error(
     `Unknown priority: "${priority}". Expected "blacklist" or "whitelist".`
   )
+}
+
+function isCmdEqual(cmd: string, pattern: string): boolean {
+  if (cmd === pattern || cmd.startsWith(`${pattern} `)) return true
+
+  for (let i = 0; i < SPLITTERS.length; i++) {
+    const s = SPLITTERS[i]
+
+    if (
+      cmd.startsWith(`${pattern}${s}`) ||
+      cmd.startsWith(`${pattern} ${s}`) ||
+      cmd.includes(`${s}${pattern}`) ||
+      cmd.includes(`${s} ${pattern}`)
+    ) {
+      return true
+    }
+  }
+
+  return false
 }

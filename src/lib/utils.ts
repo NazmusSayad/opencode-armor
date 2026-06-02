@@ -1,32 +1,5 @@
 import { packageJSON } from '../package.js'
 
-export function isCmdEqual(cmd: string, pattern: string): boolean {
-  return (
-    cmd === pattern ||
-    cmd.startsWith(pattern + ' ') ||
-    cmd.startsWith(pattern + ';') ||
-    cmd.startsWith(pattern + ' ;') ||
-    cmd.startsWith(pattern + '|') ||
-    cmd.startsWith(pattern + ' |') ||
-    cmd.startsWith(pattern + '&') ||
-    cmd.startsWith(pattern + ' &') ||
-    cmd.startsWith(pattern + '||') ||
-    cmd.startsWith(pattern + ' ||') ||
-    cmd.startsWith(pattern + '&&') ||
-    cmd.startsWith(pattern + ' &&') ||
-    cmd.includes(';' + pattern) ||
-    cmd.includes('; ' + pattern) ||
-    cmd.includes('|' + pattern) ||
-    cmd.includes('| ' + pattern) ||
-    cmd.includes('&' + pattern) ||
-    cmd.includes('& ' + pattern) ||
-    cmd.includes('||' + pattern) ||
-    cmd.includes('|| ' + pattern) ||
-    cmd.includes('&&' + pattern) ||
-    cmd.includes('&& ' + pattern)
-  )
-}
-
 export function pickFirst<T>(...arrays: T[]): T | undefined {
   for (let i = 0; i < arrays.length; i++) {
     if (arrays[i] !== undefined) {
