@@ -2,7 +2,7 @@ import consola from 'consola'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { packageJSON } from './package.js'
+import { packageJSON } from '../package.js'
 
 function createStream() {
   const logDir = path.resolve(

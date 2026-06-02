@@ -1,11 +1,11 @@
 import { Plugin } from '@opencode-ai/plugin'
-import { resolveConfig } from './config.js'
-import { BLOCKED_MESSAGE } from './constants.js'
-import { readDotenvFiles } from './dotenv.js'
-import { console } from './logger.js'
-import { patternMatcher } from './matcher.js'
+import { resolveConfig } from './config/config-resolver.js'
+import { BLOCKED_MESSAGE } from './config/constants.js'
+import { readDotenvFiles } from './lib/dotenv.js'
+import { console } from './lib/logger.js'
+import { patternMatcher } from './lib/matcher.js'
+import { generateCommandWithComment } from './lib/utils.js'
 import { packageJSON } from './package.js'
-import { generateCommandWithComment } from './utils.js'
 
 console.info(`${packageJSON.name}@${packageJSON.version} init!`)
 
@@ -14,7 +14,7 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
   const config = await resolveConfig(directory)
   console.info(`Config for "${directory}": ${JSON.stringify(config)}`)
 
-  const projectEnvVars = await readDotenvFiles(directory, config.dotenvFiles)
+  const projectEnvVars = await readDotenvFiles(directory, config.dotenv.files)
   console.info(`Project Environment vars: ${JSON.stringify(projectEnvVars)}`)
 
   return {
@@ -24,8 +24,8 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
 
       let resolvedVars = { ...projectEnvVars }
 
-      if (!config.ignoreCwdDotenvFiles && input.cwd !== directory) {
-        const cwdEnvVars = await readDotenvFiles(input.cwd, config.dotenvFiles)
+      if (!config.dotenv.ignoreCwd && input.cwd !== directory) {
+        const cwdEnvVars = await readDotenvFiles(input.cwd, config.dotenv.files)
         console.info(`CWD Environment vars: ${JSON.stringify(cwdEnvVars)}`)
 
         resolvedVars = { ...resolvedVars, ...cwdEnvVars }
@@ -42,11 +42,17 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
         const command: string = output.args.command ?? ''
         if (command.trim() === '') return
 
-        const blockedPattern = await patternMatcher(command, config)
+        const blockedPattern = await patternMatcher({
+          command,
+          priority: config.armor.priority,
+          whitelist: config.armor.whitelist,
+          blacklist: config.armor.blacklist,
+        })
+
         if (blockedPattern !== null) {
           console.info(`Command usage restricted: "${command}".`)
           throw new Error(
-            (config.blockedMessage ?? BLOCKED_MESSAGE)
+            (config.armor.message ?? BLOCKED_MESSAGE)
               .replaceAll('{{COMMAND}}', command)
               .replaceAll('{{PATTERN}}', blockedPattern)
           )
@@ -56,10 +62,10 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
           `Command is allowed: "${command}". Proceeding with execution.`
         )
 
-        if (config.injectCommandBefore) {
+        if (config.command.injectBefore) {
           const injectedString = generateCommandWithComment(
-            config.injectCommandBefore + ';',
-            config.injectCommandBeforeComment
+            config.command.injectBefore + ';',
+            config.command.injectBeforeComment
           )
 
           if (!command.trim().startsWith(injectedString)) {
@@ -68,10 +74,10 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
           }
         }
 
-        if (config.injectCommandAfter) {
+        if (config.command.injectAfter) {
           const injectedString = generateCommandWithComment(
-            config.injectCommandAfter + ';',
-            config.injectCommandAfterComment
+            config.command.injectAfter + ';',
+            config.command.injectAfterComment
           )
 
           if (!command.trim().endsWith(injectedString)) {

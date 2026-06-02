@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import z from 'zod'
-import { configSchema } from './config.js'
+import { configSchema } from './config/config-schema.js'
 
 const schema = configSchema
   .extend({ $schema: z.string().optional() })

@@ -1,4 +1,4 @@
-import { packageJSON } from './package.js'
+import { packageJSON } from '../package.js'
 
 export function isCmdEqual(cmd: string, pattern: string): boolean {
   return (

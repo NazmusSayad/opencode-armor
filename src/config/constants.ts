@@ -4,7 +4,7 @@ export const BLOCKED_MESSAGE = [
   '**IMPORTANT**: DO NOT ATTEMPT TO BYPASS THIS RESTRICTION UNDER ANY CIRCUMSTANCES!',
 ].join('\n')
 
-export const DEFAULT_ENV_FILES = [
+export const DEFAULT_DOTENV_FILES = [
   '.env',
   '.env.local',
 
