@@ -22,5 +22,13 @@ export function generateCommandWithComment(
 }
 
 export function uniqueArrayOfStrings<T>(array: T[]): T[] {
-  return [...new Set(array)]
+  const result: T[] = []
+
+  array.forEach((item) => {
+    if (!result.includes(item)) {
+      result.push(item)
+    }
+  })
+
+  return result
 }
