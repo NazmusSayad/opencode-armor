@@ -1,7 +1,8 @@
-import dotenv from 'dotenv'
+import { objectOmitNullish } from 'daily-code'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import util from 'util'
 import { console } from './logger.js'
 
 export async function readDotenvFiles(cwd: string, files: string[]) {
@@ -11,7 +12,7 @@ export async function readDotenvFiles(cwd: string, files: string[]) {
     try {
       const resolvedPath = resolveFilePath(cwd, file)
       const content = fs.readFileSync(resolvedPath, 'utf-8')
-      const env = dotenv.parse(content)
+      const env = objectOmitNullish(util.parseEnv(content))
 
       console.info(
         `Loaded environment variables from "${resolvedPath}": ${JSON.stringify(env)}`

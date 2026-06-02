@@ -4,6 +4,22 @@ export const BLOCKED_MESSAGE = [
   '**IMPORTANT**: DO NOT ATTEMPT TO BYPASS THIS RESTRICTION UNDER ANY CIRCUMSTANCES!',
 ].join('\n')
 
+export const DEFAULT_ENV_FILES = [
+  '.env',
+  '.env.local',
+
+  '.env.dev',
+  '.env.dev.local',
+
+  '.env.development',
+  '.env.development.local',
+
+  '.env.oc',
+  '.env.opencode',
+  '.env.armor',
+  '.env.opencode-armor',
+]
+
 export const ALLOWED_PATTERNS: string[] = [...npxCommand('next lint')]
 
 export const BLOCKED_PATTERNS: string[] = [
