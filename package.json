@@ -1,6 +1,6 @@
 {
   "name": "opencode-armor",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -13,7 +13,11 @@
   },
   "type": "module",
   "main": "./dist/index.mjs",
+  "bin": {
+    "opencode-armor": "./dist/bin.mjs"
+  },
   "devDependencies": {
+    "@commander-js/extra-typings": "^15.0.0",
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.38.0",
@@ -21,6 +25,8 @@
     "@types/node": "^24.12.2",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
+    "chalk": "^5.6.2",
+    "commander": "^15.0.0",
     "concurrently": "^9.2.1",
     "consola": "^3.4.2",
     "cross-env": "^10.1.0",

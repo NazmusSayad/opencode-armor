@@ -4,6 +4,7 @@ import packageJSON from './package.json' with { type: 'json' }
 export default defineConfig({
   name: packageJSON.name,
   entry: {
+    bin: './src/bin.ts',
     index: './src/index.ts',
   },
 
