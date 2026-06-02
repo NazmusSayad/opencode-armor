@@ -28,7 +28,7 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
         ...projectEnvVars,
       }
 
-      if (!config.dotenv.ignoreCwd && input.cwd !== directory) {
+      if (!config.dotenv.disableCWD && input.cwd !== directory) {
         const cwdEnvVars = await readDotenvFiles(input.cwd, config.dotenv.files)
         console.info(`CWD Environment vars: ${JSON.stringify(cwdEnvVars)}`)
 

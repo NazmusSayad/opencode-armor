@@ -50,17 +50,17 @@ export async function resolveConfig(workdir: string) {
         ...(projectConfig.armor?.blacklist?.commands ?? []),
 
         ...(pickFirst(
-          opencodeConfig.armor?.blacklist?.ignoreGlobal,
-          projectConfig.armor?.blacklist?.ignoreGlobal,
-          globalConfig.armor?.blacklist?.ignoreGlobal
+          opencodeConfig.armor?.blacklist?.disableGlobal,
+          projectConfig.armor?.blacklist?.disableGlobal,
+          globalConfig.armor?.blacklist?.disableGlobal
         )
           ? []
           : (globalConfig.armor?.blacklist?.commands ?? [])),
 
         ...(pickFirst(
-          opencodeConfig.armor?.blacklist?.ignoreDefaults,
-          projectConfig.armor?.blacklist?.ignoreDefaults,
-          globalConfig.armor?.blacklist?.ignoreDefaults
+          opencodeConfig.armor?.blacklist?.disableDefaults,
+          projectConfig.armor?.blacklist?.disableDefaults,
+          globalConfig.armor?.blacklist?.disableDefaults
         )
           ? []
           : BLOCKED_PATTERNS),
@@ -71,17 +71,17 @@ export async function resolveConfig(workdir: string) {
         ...(projectConfig.armor?.whitelist?.commands ?? []),
 
         ...(pickFirst(
-          opencodeConfig.armor?.whitelist?.ignoreGlobal,
-          projectConfig.armor?.whitelist?.ignoreGlobal,
-          globalConfig.armor?.whitelist?.ignoreGlobal
+          opencodeConfig.armor?.whitelist?.disableGlobal,
+          projectConfig.armor?.whitelist?.disableGlobal,
+          globalConfig.armor?.whitelist?.disableGlobal
         )
           ? []
           : (globalConfig.armor?.whitelist?.commands ?? [])),
 
         ...(pickFirst(
-          opencodeConfig.armor?.whitelist?.ignoreDefaults,
-          projectConfig.armor?.whitelist?.ignoreDefaults,
-          globalConfig.armor?.whitelist?.ignoreDefaults
+          opencodeConfig.armor?.whitelist?.disableDefaults,
+          projectConfig.armor?.whitelist?.disableDefaults,
+          globalConfig.armor?.whitelist?.disableDefaults
         )
           ? []
           : ALLOWED_PATTERNS),
@@ -97,9 +97,9 @@ export async function resolveConfig(workdir: string) {
     dotenv: {
       vars: {
         ...(pickFirst(
-          opencodeConfig.dotenv?.ignoreGlobal,
-          projectConfig.dotenv?.ignoreGlobal,
-          globalConfig.dotenv?.ignoreGlobal
+          opencodeConfig.dotenv?.disableGlobal,
+          projectConfig.dotenv?.disableGlobal,
+          globalConfig.dotenv?.disableGlobal
         )
           ? {}
           : globalConfig.dotenv?.define),
@@ -110,17 +110,17 @@ export async function resolveConfig(workdir: string) {
 
       files: uniqueArrayOfStrings([
         ...(pickFirst(
-          opencodeConfig.dotenv?.ignoreDefaults,
-          projectConfig.dotenv?.ignoreDefaults,
-          globalConfig.dotenv?.ignoreDefaults
+          opencodeConfig.dotenv?.disableDefaults,
+          projectConfig.dotenv?.disableDefaults,
+          globalConfig.dotenv?.disableDefaults
         )
           ? []
           : DEFAULT_DOTENV_FILES),
 
         ...(pickFirst(
-          opencodeConfig.dotenv?.ignoreGlobal,
-          projectConfig.dotenv?.ignoreGlobal,
-          globalConfig.dotenv?.ignoreGlobal
+          opencodeConfig.dotenv?.disableGlobal,
+          projectConfig.dotenv?.disableGlobal,
+          globalConfig.dotenv?.disableGlobal
         )
           ? []
           : (globalConfig.dotenv?.files ?? [])),
@@ -129,11 +129,11 @@ export async function resolveConfig(workdir: string) {
         ...(opencodeConfig.dotenv?.files ?? []),
       ]),
 
-      ignoreCwd:
+      disableCWD:
         pickFirst(
-          opencodeConfig.dotenv?.ignoreCwd,
-          projectConfig.dotenv?.ignoreCwd,
-          globalConfig.dotenv?.ignoreCwd
+          opencodeConfig.dotenv?.disableCwd,
+          projectConfig.dotenv?.disableCwd,
+          globalConfig.dotenv?.disableCwd
         ) ?? false,
     },
 
