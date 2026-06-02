@@ -16,13 +16,17 @@ export const OpenCodeArmor: Plugin = async ({ directory }) => {
 
   const projectEnvVars = await readDotenvFiles(directory, config.dotenv.files)
   console.info(`Project Environment vars: ${JSON.stringify(projectEnvVars)}`)
+  console.info(`Fixed Environment vars: ${JSON.stringify(config.dotenv.vars)}`)
 
   return {
     'shell.env': async (input, output) => {
       console.log(`Injecting Environment vars for project "${directory}".`)
       console.log(`Injecting Environment vars for cwd "${input.cwd}".`)
 
-      let resolvedVars = { ...projectEnvVars }
+      let resolvedVars = {
+        ...config.dotenv.vars,
+        ...projectEnvVars,
+      }
 
       if (!config.dotenv.ignoreCwd && input.cwd !== directory) {
         const cwdEnvVars = await readDotenvFiles(input.cwd, config.dotenv.files)

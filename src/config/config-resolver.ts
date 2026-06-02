@@ -95,6 +95,19 @@ export async function resolveConfig(workdir: string) {
     },
 
     dotenv: {
+      vars: {
+        ...(pickFirst(
+          opencodeConfig.dotenv?.ignoreGlobal,
+          projectConfig.dotenv?.ignoreGlobal,
+          globalConfig.dotenv?.ignoreGlobal
+        )
+          ? {}
+          : globalConfig.dotenv?.define),
+
+        ...projectConfig.dotenv?.define,
+        ...opencodeConfig.dotenv?.define,
+      },
+
       files: uniqueArrayOfStrings([
         ...(pickFirst(
           opencodeConfig.dotenv?.ignoreDefaults,

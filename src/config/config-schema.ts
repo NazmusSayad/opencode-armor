@@ -14,6 +14,7 @@ const armorSchema = z.object({
 })
 
 const dotenvSchema = z.object({
+  define: z.record(z.string(), z.string()),
   files: z.array(z.string()),
   ignoreDefaults: z.boolean(),
   ignoreGlobal: z.boolean(),
